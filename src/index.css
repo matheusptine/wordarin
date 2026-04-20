@@ -1,0 +1,370 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500&display=swap');
+
+:root {
+  --bg-color: #f3f4f6; /* Soft gray for workspace */
+  --page-bg: #ffffff; /* White A4 paper */
+  --toolbar-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+  --accent-color: #2563eb; /* Blue accent akin to Word */
+  --accent-hover: #eff6ff;
+  --pinyin-color: #6b7280; /* Subtle gray for pinyin */
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden; /* App container handles scrolling */
+}
+
+#root {
+  height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Toolbar (Ribbon) */
+.toolbar {
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-color);
+  margin: 0 4px;
+}
+
+.toolbar-button {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.toolbar-button:hover {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.toolbar-button.demo-active {
+  background-color: var(--accent-hover);
+  color: var(--accent-color);
+}
+
+/* Speed Slider in Toolbar */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+  margin-right: 8px;
+}
+
+.speed-slider {
+  width: 80px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.speed-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 28px;
+}
+
+.toolbar-title {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+/* Workspace wrapper */
+.workspace {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+/* The A4 Page simulation */
+/* Using width ~800px and large min-height to simulate A4 scrolling smoothly */
+.editor-page {
+  background-color: var(--page-bg);
+  width: 100%;
+  max-width: 800px;
+  flex-shrink: 0;
+  min-height: 1100px; /* ~A4 Height */
+  padding: 96px; /* 1 inch margins approximately */
+  box-shadow: var(--shadow-lg);
+  border-radius: 2px; /* Slight rounding for softness */
+}
+
+/* Right-side translation gutter */
+.translation-gutter {
+  background-color: var(--page-bg);
+  width: 250px;
+  flex-shrink: 0;
+  min-height: 1100px;
+  padding: 96px 24px;
+  box-shadow: var(--shadow-lg);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.translation-line {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 2.2; /* Match editor */
+  min-height: 2.2em; 
+  margin-bottom: 1em; /* Match editor paragraph margin */
+  transition: opacity 0.3s;
+}
+
+.translation-line.loading {
+  opacity: 0.5;
+}
+
+.editor-content {
+  outline: none;
+  font-family: 'Noto Serif SC', serif; /* Use serif for elegant Chinese text */
+  font-size: 18px; /* Slightly larger base size to accommodate pinyin visuals */
+  line-height: 2.2; /* Generous line height for pinyin spacing */
+  color: var(--text-primary);
+}
+
+.editor-content p {
+  margin-bottom: 1em;
+}
+
+/* Pinyin Ruby specific styling */
+.pinyin-ruby {
+  ruby-align: center;
+}
+
+/* Chrome/Edge bug: highlighted ruby text masks the RT tags */
+.pinyin-ruby::selection {
+  background-color: rgba(37, 99, 235, 0.2); /* Soft blue selection */
+}
+
+.pinyin-rt {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6em; /* Pinyin size relative to character */
+  color: var(--accent-color) !important;
+  font-weight: 500;
+  user-select: none; /* Prevent pinyin from being selected during text selection */
+  pointer-events: none;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.pinyin-rt::selection {
+  background: transparent !important;
+  color: var(--accent-color) !important;
+}
+
+.hide-pinyin .pinyin-rt {
+  display: none !important;
+}
+
+/* Left-side flashcards panel (symmetric to translation-gutter, shorter) */
+.flashcards-panel {
+  background-color: var(--page-bg);
+  width: 250px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+}
+
+.flashcards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.flashcards-deck-select {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--page-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.flashcards-counter {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.flashcards-card {
+  background: var(--bg-color);
+  border-radius: 6px;
+  padding: 16px 12px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.flashcards-hanzi {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  line-height: 2;
+  color: var(--text-primary);
+}
+
+.flashcards-hanzi .pinyin-rt {
+  font-size: 0.5em;
+}
+
+.flashcards-back {
+  min-height: 2.4em;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.flashcards-back.revealed {
+  opacity: 1;
+}
+
+.flashcards-pt {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.flashcards-controls {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flashcards-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 5px 8px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+
+.flashcards-btn:hover {
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.flashcards-btn.active {
+  background: var(--accent-hover);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.flashcards-reveal {
+  flex: 1;
+  justify-content: center;
+}
+
+.flashcards-loading,
+.flashcards-empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Hide flashcards when printing */
+@media print {
+  .flashcards-panel { display: none; }
+}
+
+/* Print CSS - Converts the UI to a pure page */
+@media print {
+  body {
+    background-color: white;
+    height: auto;
+    overflow: visible;
+  }
+  .toolbar {
+    display: none;
+  }
+  .workspace {
+    padding: 0;
+    overflow: visible;
+    display: block;
+  }
+  .editor-page {
+    box-shadow: none;
+    max-width: none;
+    padding: 0;
+    min-height: 0;
+  }
+}

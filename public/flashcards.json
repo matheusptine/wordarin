@@ -1,0 +1,1597 @@
+{
+  "decks": [
+    {
+      "deck": "Saudações e Cortesia",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Categoria"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "你好！",
+          "Pinyin": "Nǐ hǎo!",
+          "Português": "Olá! / Como está?",
+          "Categoria": "Saudação"
+        },
+        {
+          "Chinês (汉字)": "谢谢！",
+          "Pinyin": "Xièxie!",
+          "Português": "Obrigado/obrigada!",
+          "Categoria": "Cortesia"
+        },
+        {
+          "Chinês (汉字)": "不客气。",
+          "Pinyin": "Bú kèqi.",
+          "Português": "De nada.",
+          "Categoria": "Cortesia"
+        },
+        {
+          "Chinês (汉字)": "对不起！",
+          "Pinyin": "Duìbuqǐ!",
+          "Português": "Desculpe / Perdão.",
+          "Categoria": "Cortesia"
+        },
+        {
+          "Chinês (汉字)": "没关系。",
+          "Pinyin": "Méi guānxi.",
+          "Português": "Não faz mal. / Não tem de quê.",
+          "Categoria": "Cortesia"
+        },
+        {
+          "Chinês (汉字)": "再见！",
+          "Pinyin": "Zàijiàn!",
+          "Português": "Adeus! / Até à próxima!",
+          "Categoria": "Despedida"
+        }
+      ]
+    },
+    {
+      "deck": "Sala de Aula",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Categoria"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "上课。",
+          "Pinyin": "Shàng kè.",
+          "Português": "Começar a aula.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "下课。",
+          "Pinyin": "Xià kè.",
+          "Português": "Terminar a aula.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "现在休息一下。",
+          "Pinyin": "Xiànzài xiūxi yíxià.",
+          "Português": "Agora faz-se um intervalo.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "现在继续上课。",
+          "Pinyin": "Xiànzài jìxù shàng kè.",
+          "Português": "Continuar agora a aula.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请打开书，翻到第三页。",
+          "Pinyin": "Qǐng dǎkāi shū, fān dào dì-sān yè.",
+          "Português": "Abra(m) o livro para página 3, por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请听录音。",
+          "Pinyin": "Qǐng tīng lùyīn.",
+          "Português": "Ouça(m) a gravação, por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请跟我读。",
+          "Pinyin": "Qǐng gēn wǒ dú.",
+          "Português": "Por favor, leia(m) comigo.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请再说一遍。",
+          "Pinyin": "Qǐng zài shuō yí biàn.",
+          "Português": "Diga(m) outra vez, por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "这是什么意思？",
+          "Pinyin": "Zhè shì shénme yìsi?",
+          "Português": "O que é que isto significa?",
+          "Categoria": "Pergunta"
+        },
+        {
+          "Chinês (汉字)": "（汉语）怎么说？",
+          "Pinyin": "(Hànyǔ) zěnme shuō?",
+          "Português": "Como se diz ... em chinês?",
+          "Categoria": "Pergunta"
+        },
+        {
+          "Chinês (汉字)": "（汉字）怎么写？",
+          "Pinyin": "(Hànzì) zěnme xiě?",
+          "Português": "Como se escreve...?",
+          "Categoria": "Pergunta"
+        },
+        {
+          "Chinês (汉字)": "请读一下。",
+          "Pinyin": "Qǐng dú yíxià.",
+          "Português": "Leia(m), por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请写一下。",
+          "Pinyin": "Qǐng xiě yíxià.",
+          "Português": "Escreva(m), por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "请翻译一下。",
+          "Pinyin": "Qǐng fānyì yíxià.",
+          "Português": "Traduza(m), por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "对不对？",
+          "Pinyin": "Duì bu duì?",
+          "Português": "Está correcto?",
+          "Categoria": "Pergunta"
+        },
+        {
+          "Chinês (汉字)": "对。",
+          "Pinyin": "Duì.",
+          "Português": "Está, sim. Está correcto.",
+          "Categoria": "Resposta"
+        },
+        {
+          "Chinês (汉字)": "不对。",
+          "Pinyin": "Bú duì.",
+          "Português": "Não. Não está correcto.",
+          "Categoria": "Resposta"
+        },
+        {
+          "Chinês (汉字)": "请看黑板。",
+          "Pinyin": "Qǐng kàn hēibǎn.",
+          "Português": "Olhe(m) para o quadro, por favor.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "现在听写。",
+          "Pinyin": "Xiànzài tīngxiě.",
+          "Português": "Faça(m) agora um ditado.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "现在做练习。",
+          "Pinyin": "Xiànzài zuò liànxí.",
+          "Português": "Faça(m) agora os exercícios.",
+          "Categoria": "Instrução"
+        },
+        {
+          "Chinês (汉字)": "今天的作业是……",
+          "Pinyin": "Jīntiān de zuòyè shì...",
+          "Português": "Hoje o trabalho de casa é...",
+          "Categoria": "Instrução"
+        }
+      ]
+    },
+    {
+      "deck": "Termos Gramaticais",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Abreviatura"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "名词",
+          "Pinyin": "míngcí",
+          "Português": "nome/substantivo",
+          "Abreviatura": "n./s."
+        },
+        {
+          "Chinês (汉字)": "处所词",
+          "Pinyin": "chùsuǒcí",
+          "Português": "palavra de lugar",
+          "Abreviatura": "p.d.l."
+        },
+        {
+          "Chinês (汉字)": "方位词",
+          "Pinyin": "fāngwèicí",
+          "Português": "palavra de localização",
+          "Abreviatura": "p.l."
+        },
+        {
+          "Chinês (汉字)": "时间词",
+          "Pinyin": "shíjiāncí",
+          "Português": "palavra de tempo",
+          "Abreviatura": "p.t."
+        },
+        {
+          "Chinês (汉字)": "动词",
+          "Pinyin": "dòngcí",
+          "Português": "verbo",
+          "Abreviatura": "v."
+        },
+        {
+          "Chinês (汉字)": "趋向动词",
+          "Pinyin": "qūxiàng dòngcí",
+          "Português": "verbo direccional",
+          "Abreviatura": "v.d."
+        },
+        {
+          "Chinês (汉字)": "能愿动词",
+          "Pinyin": "néngyuàn dòngcí",
+          "Português": "verbo optativo",
+          "Abreviatura": "v.o."
+        },
+        {
+          "Chinês (汉字)": "形容词",
+          "Pinyin": "xíngróngcí",
+          "Português": "adjectivo",
+          "Abreviatura": "adj."
+        },
+        {
+          "Chinês (汉字)": "数词",
+          "Pinyin": "shùcí",
+          "Português": "numeral",
+          "Abreviatura": "num."
+        },
+        {
+          "Chinês (汉字)": "量词",
+          "Pinyin": "liàngcí",
+          "Português": "palavra classificadora",
+          "Abreviatura": "p.c."
+        },
+        {
+          "Chinês (汉字)": "代词",
+          "Pinyin": "dàicí",
+          "Português": "pronome",
+          "Abreviatura": "pron."
+        },
+        {
+          "Chinês (汉字)": "疑问词",
+          "Pinyin": "yíwèncí",
+          "Português": "interrogativo",
+          "Abreviatura": "interr."
+        },
+        {
+          "Chinês (汉字)": "副词",
+          "Pinyin": "fùcí",
+          "Português": "advérbio",
+          "Abreviatura": "adv."
+        },
+        {
+          "Chinês (汉字)": "介词",
+          "Pinyin": "jiècí",
+          "Português": "preposição",
+          "Abreviatura": "prep."
+        },
+        {
+          "Chinês (汉字)": "连词",
+          "Pinyin": "liáncí",
+          "Português": "conjunção",
+          "Abreviatura": "conj."
+        },
+        {
+          "Chinês (汉字)": "助词",
+          "Pinyin": "zhùcí",
+          "Português": "partícula",
+          "Abreviatura": "part."
+        },
+        {
+          "Chinês (汉字)": "主语",
+          "Pinyin": "zhǔyǔ",
+          "Português": "sujeito",
+          "Abreviatura": "suj."
+        },
+        {
+          "Chinês (汉字)": "宾语",
+          "Pinyin": "bīnyǔ",
+          "Português": "objecto",
+          "Abreviatura": "obj."
+        },
+        {
+          "Chinês (汉字)": "定语",
+          "Pinyin": "dìngyǔ",
+          "Português": "atributo",
+          "Abreviatura": "atrib."
+        },
+        {
+          "Chinês (汉字)": "状语",
+          "Pinyin": "zhuàngyǔ",
+          "Português": "adjunto adverbial",
+          "Abreviatura": "a.adv."
+        },
+        {
+          "Chinês (汉字)": "补语",
+          "Pinyin": "bǔyǔ",
+          "Português": "complemento",
+          "Abreviatura": "compl."
+        }
+      ]
+    },
+    {
+      "deck": "Fonética - Tons",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Descrição"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "第一声",
+          "Pinyin": "dì-yī shēng",
+          "Português": "primeiro tom",
+          "Descrição": "Alto e constante (55) — ex.: mā 妈 = mãe"
+        },
+        {
+          "Chinês (汉字)": "第二声",
+          "Pinyin": "dì-èr shēng",
+          "Português": "segundo tom",
+          "Descrição": "Ascendente (35) — ex.: má 麻 = cânhamo"
+        },
+        {
+          "Chinês (汉字)": "第三声",
+          "Pinyin": "dì-sān shēng",
+          "Português": "terceiro tom",
+          "Descrição": "Descendente-ascendente (214) — ex.: mǎ 马 = cavalo"
+        },
+        {
+          "Chinês (汉字)": "第四声",
+          "Pinyin": "dì-sì shēng",
+          "Português": "quarto tom",
+          "Descrição": "Descendente (51) — ex.: mà 骂 = insultos"
+        },
+        {
+          "Chinês (汉字)": "轻声",
+          "Pinyin": "qīngshēng",
+          "Português": "tom neutro",
+          "Descrição": "Tom baixo e curto, sem marca tonal"
+        },
+        {
+          "Chinês (汉字)": "Exemplos de tom neutro (轻声)",
+          "Pinyin": "",
+          "Português": "",
+          "Descrição": ""
+        },
+        {
+          "Chinês (汉字)": "你们",
+          "Pinyin": "nǐmen",
+          "Português": "vocês",
+          "Descrição": "Tom neutro"
+        },
+        {
+          "Chinês (汉字)": "他们 / 她们 / 它们",
+          "Pinyin": "tāmen",
+          "Português": "eles / elas",
+          "Descrição": "Tom neutro"
+        },
+        {
+          "Chinês (汉字)": "爸爸",
+          "Pinyin": "bàba",
+          "Português": "pai",
+          "Descrição": "Tom neutro"
+        },
+        {
+          "Chinês (汉字)": "妈妈",
+          "Pinyin": "māma",
+          "Português": "mãe",
+          "Descrição": "Tom neutro"
+        },
+        {
+          "Chinês (汉字)": "他的 / 她的 / 它的",
+          "Pinyin": "tā de",
+          "Português": "seu, sua, dele, dela",
+          "Descrição": "Tom neutro"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Vocabulário",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Classe gramatical"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "您",
+          "Pinyin": "nín",
+          "Português": "você (formal)",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "好",
+          "Pinyin": "hǎo",
+          "Português": "bom",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "贵姓",
+          "Pinyin": "guìxìng",
+          "Português": "Qual é o nome? (formal)",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "姓",
+          "Pinyin": "xìng",
+          "Português": "apelido / ter como apelido",
+          "Classe gramatical": "v. e n."
+        },
+        {
+          "Chinês (汉字)": "我",
+          "Pinyin": "wǒ",
+          "Português": "eu",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "呢",
+          "Pinyin": "ne",
+          "Português": "(partícula interrogativa)",
+          "Classe gramatical": "part."
+        },
+        {
+          "Chinês (汉字)": "是",
+          "Pinyin": "shì",
+          "Português": "ser",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "人",
+          "Pinyin": "rén",
+          "Português": "pessoa, gente",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "吗",
+          "Pinyin": "ma",
+          "Português": "(partícula interrogativa sim/não)",
+          "Classe gramatical": "part."
+        },
+        {
+          "Chinês (汉字)": "不",
+          "Pinyin": "bù",
+          "Português": "não",
+          "Classe gramatical": "adv."
+        },
+        {
+          "Chinês (汉字)": "同学",
+          "Pinyin": "tóngxué",
+          "Português": "colega",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "们",
+          "Pinyin": "men",
+          "Português": "(sufixo de plural)",
+          "Classe gramatical": "sufixo"
+        },
+        {
+          "Chinês (汉字)": "老师",
+          "Pinyin": "lǎoshī",
+          "Português": "professor",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "叫",
+          "Pinyin": "jiào",
+          "Português": "chamar / chamar-se",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "你",
+          "Pinyin": "nǐ",
+          "Português": "tu",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "什么",
+          "Pinyin": "shénme",
+          "Português": "que, o quê",
+          "Classe gramatical": "interr."
+        },
+        {
+          "Chinês (汉字)": "名字",
+          "Pinyin": "míngzi",
+          "Português": "nome",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "哪国人",
+          "Pinyin": "nǎ guó rén",
+          "Português": "de que país...?",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "哪",
+          "Pinyin": "nǎ",
+          "Português": "que, qual",
+          "Classe gramatical": "interr."
+        },
+        {
+          "Chinês (汉字)": "国",
+          "Pinyin": "guó",
+          "Português": "país",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "也",
+          "Pinyin": "yě",
+          "Português": "também",
+          "Classe gramatical": "adv."
+        },
+        {
+          "Chinês (汉字)": "说",
+          "Pinyin": "shuō",
+          "Português": "falar, dizer",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "葡萄牙语",
+          "Pinyin": "Pútáoyáyǔ",
+          "Português": "língua portuguesa",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "还是",
+          "Pinyin": "háishi",
+          "Português": "ou (em perguntas)",
+          "Classe gramatical": "conj."
+        },
+        {
+          "Chinês (汉字)": "法语",
+          "Pinyin": "Fǎyǔ",
+          "Português": "língua francesa",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "都",
+          "Pinyin": "dōu",
+          "Português": "todo, todos",
+          "Classe gramatical": "adv."
+        },
+        {
+          "Chinês (汉字)": "只",
+          "Pinyin": "zhǐ",
+          "Português": "apenas, só",
+          "Classe gramatical": "adv."
+        },
+        {
+          "Chinês (汉字)": "汉语",
+          "Pinyin": "Hànyǔ",
+          "Português": "chinês, língua chinesa",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "他",
+          "Pinyin": "tā",
+          "Português": "ele",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "她",
+          "Pinyin": "tā",
+          "Português": "ela",
+          "Classe gramatical": "pron."
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Nomes Próprios",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Tipo"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "葡萄牙",
+          "Pinyin": "Pútáoyá",
+          "Português": "Portugal",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "中国",
+          "Pinyin": "Zhōngguó",
+          "Português": "China",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "巴西",
+          "Pinyin": "Bāxī",
+          "Português": "Brasil",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "美国",
+          "Pinyin": "Měiguó",
+          "Português": "Estados Unidos da América",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "英国",
+          "Pinyin": "Yīngguó",
+          "Português": "Reino Unido",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "俄罗斯",
+          "Pinyin": "Éluósī",
+          "Português": "Rússia",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "法国",
+          "Pinyin": "Fǎguó",
+          "Português": "França",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "德国",
+          "Pinyin": "Déguó",
+          "Português": "Alemanha",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "日本",
+          "Pinyin": "Rìběn",
+          "Português": "Japão",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "韩国",
+          "Pinyin": "Hánguó",
+          "Português": "Coreia do Sul",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "加拿大",
+          "Pinyin": "Jiānádà",
+          "Português": "Canadá",
+          "Tipo": "País"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Gramática",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Regra Gramatical"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "我姓王。",
+          "Pinyin": "Wǒ xìng Wáng.",
+          "Português": "Eu me chamo Wang.",
+          "Regra Gramatical": "Suj. + V + Obj."
+        },
+        {
+          "Chinês (汉字)": "我不姓王。",
+          "Pinyin": "Wǒ bú xìng Wáng.",
+          "Português": "Não me chamo Wang.",
+          "Regra Gramatical": "Negativa: 不 + V"
+        },
+        {
+          "Chinês (汉字)": "我说法语。",
+          "Pinyin": "Wǒ shuō Fǎyǔ.",
+          "Português": "Eu falo francês.",
+          "Regra Gramatical": "Suj. + V + Obj."
+        },
+        {
+          "Chinês (汉字)": "我不说法语。",
+          "Pinyin": "Wǒ bù shuō Fǎyǔ.",
+          "Português": "Eu não falo francês.",
+          "Regra Gramatical": "Negativa: 不 + V"
+        },
+        {
+          "Chinês (汉字)": "我们都是中国人。",
+          "Pinyin": "Wǒmen dōu shì Zhōngguórén.",
+          "Português": "Somos todos chineses.",
+          "Regra Gramatical": "Adv. 都 + V"
+        },
+        {
+          "Chinês (汉字)": "我们都不是中国人。",
+          "Pinyin": "Wǒmen dōu bú shì Zhōngguórén.",
+          "Português": "Nenhum de nós é chinês.",
+          "Regra Gramatical": "Adv. + 不 + V"
+        },
+        {
+          "Chinês (汉字)": "他不是美国人。",
+          "Pinyin": "Tā bú shì Měiguórén.",
+          "Português": "Ele não é americano.",
+          "Regra Gramatical": "Adv. 不 + V"
+        },
+        {
+          "Chinês (汉字)": "他也是美国人。",
+          "Pinyin": "Tā yě shì Měiguórén.",
+          "Português": "Ele também é americano.",
+          "Regra Gramatical": "Adv. 也 + V"
+        },
+        {
+          "Chinês (汉字)": "他们都是美国人。",
+          "Pinyin": "Tāmen dōu shì Měiguórén.",
+          "Português": "Todos eles são americanos.",
+          "Regra Gramatical": "Adv. 都 + V"
+        },
+        {
+          "Chinês (汉字)": "他只说汉语。",
+          "Pinyin": "Tā zhǐ shuō Hànyǔ.",
+          "Português": "Ele só fala chinês.",
+          "Regra Gramatical": "Adv. 只 + V"
+        },
+        {
+          "Chinês (汉字)": "您是中国人吗？",
+          "Pinyin": "Nín shì Zhōngguórén ma?",
+          "Português": "Você é chinês?",
+          "Regra Gramatical": "Interr. com 吗"
+        },
+        {
+          "Chinês (汉字)": "他也是中国人吗？",
+          "Pinyin": "Tā yě shì Zhōngguórén ma?",
+          "Português": "Ele também é chinês?",
+          "Regra Gramatical": "Interr. com 吗"
+        },
+        {
+          "Chinês (汉字)": "你们都说汉语吗？",
+          "Pinyin": "Nǐmen dōu shuō Hànyǔ ma?",
+          "Português": "Vocês todos falam chinês?",
+          "Regra Gramatical": "Interr. com 吗"
+        },
+        {
+          "Chinês (汉字)": "您是不是中国人？",
+          "Pinyin": "Nín shì bu shì Zhōngguórén?",
+          "Português": "Você é chinês ou não?",
+          "Regra Gramatical": "Interr. X不X"
+        },
+        {
+          "Chinês (汉字)": "你们说不说汉语？",
+          "Pinyin": "Nǐmen shuō bu shuō Hànyǔ?",
+          "Português": "Vocês falam chinês ou não?",
+          "Regra Gramatical": "Interr. X不X"
+        },
+        {
+          "Chinês (汉字)": "你是葡萄牙人还是巴西人？",
+          "Pinyin": "Nǐ shì Pútáoyárén háishi Bāxīrén?",
+          "Português": "Tu és português ou brasileiro?",
+          "Regra Gramatical": "Interr. X还是Y"
+        },
+        {
+          "Chinês (汉字)": "你说葡萄牙语还是说法语？",
+          "Pinyin": "Nǐ shuō Pútáoyáyǔ háishi shuō Fǎyǔ?",
+          "Português": "Tu falas português ou francês?",
+          "Regra Gramatical": "Interr. X还是Y"
+        },
+        {
+          "Chinês (汉字)": "你是哪国人？",
+          "Pinyin": "Nǐ shì nǎ guó rén?",
+          "Português": "De que país és tu?",
+          "Regra Gramatical": "Interr. com 哪"
+        },
+        {
+          "Chinês (汉字)": "你姓什么？",
+          "Pinyin": "Nǐ xìng shénme?",
+          "Português": "Qual é o teu apelido?",
+          "Regra Gramatical": "Interr. com 什么"
+        },
+        {
+          "Chinês (汉字)": "你叫什么名字？",
+          "Pinyin": "Nǐ jiào shénme míngzi?",
+          "Português": "Como te chamas?",
+          "Regra Gramatical": "Interr. com 什么"
+        },
+        {
+          "Chinês (汉字)": "我是中国人。你呢？",
+          "Pinyin": "Wǒ shì Zhōngguórén. Nǐ ne?",
+          "Português": "Eu sou chinês. E tu?",
+          "Regra Gramatical": "Interr. com 呢"
+        },
+        {
+          "Chinês (汉字)": "我叫卡米洛。你呢？",
+          "Pinyin": "Wǒ jiào Kǎmǐluò. Nǐ ne?",
+          "Português": "Chamo-me Camilo. E tu?",
+          "Regra Gramatical": "Interr. com 呢"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Tom de 不",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Regra de tom"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "不说汉语",
+          "Pinyin": "bù shuō Hànyǔ",
+          "Português": "não falar chinês",
+          "Regra de tom": "不(4º) + 1º tom"
+        },
+        {
+          "Chinês (汉字)": "不白",
+          "Pinyin": "bù bái",
+          "Português": "não é branco",
+          "Regra de tom": "不(4º) + 2º tom"
+        },
+        {
+          "Chinês (汉字)": "不好",
+          "Pinyin": "bù hǎo",
+          "Português": "não é bom",
+          "Regra de tom": "不(4º) + 3º tom"
+        },
+        {
+          "Chinês (汉字)": "我不是中国人。",
+          "Pinyin": "Wǒ bú shì Zhōngguórén.",
+          "Português": "Não sou chinês.",
+          "Regra de tom": "不→2º antes de 4º tom"
+        },
+        {
+          "Chinês (汉字)": "我不姓王。",
+          "Pinyin": "Wǒ bú xìng Wáng.",
+          "Português": "Não me chamo Wang.",
+          "Regra de tom": "不→2º antes de 4º tom"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Línguas e Países",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Tipo"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "中文 / 汉语",
+          "Pinyin": "Zhōngwén / Hànyǔ",
+          "Português": "língua chinesa",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "英文 / 英语",
+          "Pinyin": "Yīngwén / Yīngyǔ",
+          "Português": "língua inglesa",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "法文 / 法语",
+          "Pinyin": "Fǎwén / Fǎyǔ",
+          "Português": "língua francesa",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "葡文 / 葡语",
+          "Pinyin": "Púwén / Púyǔ",
+          "Português": "língua portuguesa",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "西文 / 西语",
+          "Pinyin": "Xīwén / Xīyǔ",
+          "Português": "língua espanhola",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "普通话",
+          "Pinyin": "Pǔtōnghuà",
+          "Português": "mandarim (\"linguagem comum\")",
+          "Tipo": "Língua"
+        },
+        {
+          "Chinês (汉字)": "华裔",
+          "Pinyin": "huáyì",
+          "Português": "descendente de chinês",
+          "Tipo": "Outro"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 1 - Nomes Chineses",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Nota"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "姓名",
+          "Pinyin": "xìngmíng",
+          "Português": "nome completo",
+          "Nota": "Apelido + Nome próprio"
+        },
+        {
+          "Chinês (汉字)": "姓",
+          "Pinyin": "xìng",
+          "Português": "apelido",
+          "Nota": "Geralmente 1 caractere"
+        },
+        {
+          "Chinês (汉字)": "名",
+          "Pinyin": "míng",
+          "Português": "nome próprio",
+          "Nota": "1 ou 2 caracteres"
+        },
+        {
+          "Chinês (汉字)": "您贵姓？",
+          "Pinyin": "Nín guìxìng?",
+          "Português": "Qual é o seu (honrado) apelido?",
+          "Nota": "Formal"
+        },
+        {
+          "Chinês (汉字)": "你叫什么名字？",
+          "Pinyin": "Nǐ jiào shénme míngzi?",
+          "Português": "Como te chamas?",
+          "Nota": "Informal"
+        },
+        {
+          "Chinês (汉字)": "您怎么称呼？",
+          "Pinyin": "Nín zěnme chēnghu?",
+          "Português": "Como é que se denomina?",
+          "Nota": "Formal"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 2 - Vocabulário",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Classe gramatical"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "认识",
+          "Pinyin": "rènshi",
+          "Português": "conhecer",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "很",
+          "Pinyin": "hěn",
+          "Português": "muito",
+          "Classe gramatical": "adv."
+        },
+        {
+          "Chinês (汉字)": "高兴",
+          "Pinyin": "gāoxìng",
+          "Português": "contente",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "在",
+          "Pinyin": "zài",
+          "Português": "em, estar, ficar",
+          "Classe gramatical": "prep. & v."
+        },
+        {
+          "Chinês (汉字)": "进出口",
+          "Pinyin": "jìnchūkǒu",
+          "Português": "importação e exportação",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "进口",
+          "Pinyin": "jìnkǒu",
+          "Português": "importar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "出口",
+          "Pinyin": "chūkǒu",
+          "Português": "exportar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "公司",
+          "Pinyin": "gōngsī",
+          "Português": "companhia",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "工作",
+          "Pinyin": "gōngzuò",
+          "Português": "trabalhar / trabalho",
+          "Classe gramatical": "v. & n."
+        },
+        {
+          "Chinês (汉字)": "大学",
+          "Pinyin": "dàxué",
+          "Português": "universidade",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "系",
+          "Pinyin": "xì",
+          "Português": "faculdade (da universidade)",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "学习",
+          "Pinyin": "xuéxí",
+          "Português": "estudar, aprender",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "可以",
+          "Pinyin": "kěyǐ",
+          "Português": "poder",
+          "Classe gramatical": "v.o."
+        },
+        {
+          "Chinês (汉字)": "给",
+          "Pinyin": "gěi",
+          "Português": "a, para",
+          "Classe gramatical": "prep."
+        },
+        {
+          "Chinês (汉字)": "打电话",
+          "Pinyin": "dǎ diànhuà",
+          "Português": "telefonar",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "电话",
+          "Pinyin": "diànhuà",
+          "Português": "telefone",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "给……打电话",
+          "Pinyin": "gěi...dǎ diànhuà",
+          "Português": "telefonar a alguém",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "的",
+          "Pinyin": "de",
+          "Português": "(partícula possessiva)",
+          "Classe gramatical": "part."
+        },
+        {
+          "Chinês (汉字)": "我的",
+          "Pinyin": "wǒ de",
+          "Português": "meu(s), minha(s)",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "我们的",
+          "Pinyin": "wǒmen de",
+          "Português": "nosso(s), nossa(s)",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "号码",
+          "Pinyin": "hàomǎ",
+          "Português": "número",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "零",
+          "Pinyin": "líng",
+          "Português": "zero",
+          "Classe gramatical": "num."
+        },
+        {
+          "Chinês (汉字)": "发",
+          "Pinyin": "fā",
+          "Português": "enviar, mandar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "电子邮件",
+          "Pinyin": "diànzǐ yóujiàn",
+          "Português": "correio electrónico, e-mail",
+          "Classe gramatical": ""
+        },
+        {
+          "Chinês (汉字)": "电子",
+          "Pinyin": "diànzǐ",
+          "Português": "electrónica",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "邮件",
+          "Pinyin": "yóujiàn",
+          "Português": "correio",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "这",
+          "Pinyin": "zhè",
+          "Português": "este(a), isto",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "女",
+          "Pinyin": "nǚ",
+          "Português": "feminino",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "朋友",
+          "Pinyin": "péngyou",
+          "Português": "amigo(a) / namorado(a)",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "请",
+          "Pinyin": "qǐng",
+          "Português": "fazer favor / convidar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "进",
+          "Pinyin": "jìn",
+          "Português": "entrar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "坐",
+          "Pinyin": "zuò",
+          "Português": "sentar-se",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "谢谢",
+          "Pinyin": "xièxie",
+          "Português": "agradecer",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "喝",
+          "Pinyin": "hē",
+          "Português": "beber",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "茶",
+          "Pinyin": "chá",
+          "Português": "chá",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "哪儿（哪里）",
+          "Pinyin": "nǎr (nǎli)",
+          "Português": "onde",
+          "Classe gramatical": "interr."
+        },
+        {
+          "Chinês (汉字)": "学院",
+          "Pinyin": "xuéyuàn",
+          "Português": "instituto",
+          "Classe gramatical": "n."
+        },
+        {
+          "Chinês (汉字)": "怎么样",
+          "Pinyin": "zěnmeyàng",
+          "Português": "como",
+          "Classe gramatical": "interr."
+        },
+        {
+          "Chinês (汉字)": "大",
+          "Pinyin": "dà",
+          "Português": "grande",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "漂亮",
+          "Pinyin": "piàoliang",
+          "Português": "bonito, lindo",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "喜欢",
+          "Pinyin": "xǐhuan",
+          "Português": "gostar",
+          "Classe gramatical": "v."
+        },
+        {
+          "Chinês (汉字)": "那",
+          "Pinyin": "nà",
+          "Português": "aquele, aquilo",
+          "Classe gramatical": "pron."
+        },
+        {
+          "Chinês (汉字)": "男",
+          "Pinyin": "nán",
+          "Português": "masculino",
+          "Classe gramatical": "adj."
+        },
+        {
+          "Chinês (汉字)": "小",
+          "Pinyin": "xiǎo",
+          "Português": "pequeno",
+          "Classe gramatical": "adj."
+        }
+      ]
+    },
+    {
+      "deck": "Lição 2 - Nomes Próprios",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Tipo"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "里斯本大学",
+          "Pinyin": "Lǐsīběn Dàxué",
+          "Português": "Universidade de Lisboa",
+          "Tipo": "Instituição"
+        },
+        {
+          "Chinês (汉字)": "文学系",
+          "Pinyin": "Wénxuéxì",
+          "Português": "Faculdade de Letras",
+          "Tipo": "Instituição"
+        },
+        {
+          "Chinês (汉字)": "加拿大",
+          "Pinyin": "Jiānádà",
+          "Português": "Canadá",
+          "Tipo": "País"
+        },
+        {
+          "Chinês (汉字)": "东方学院",
+          "Pinyin": "Dōngfāng Xuéyuàn",
+          "Português": "Instituto Oriental",
+          "Tipo": "Instituição"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 2 - Gramática",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Regra Gramatical"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "我很高兴。",
+          "Pinyin": "Wǒ hěn gāoxìng.",
+          "Português": "Estou muito contente.",
+          "Regra Gramatical": "Suj. + Adj. (com 很)"
+        },
+        {
+          "Chinês (汉字)": "我们的大学很大，也很漂亮。",
+          "Pinyin": "Wǒmen de dàxué hěn dà, yě hěn piàoliang.",
+          "Português": "A nossa universidade é grande e bonita.",
+          "Regra Gramatical": "Suj. + Adj."
+        },
+        {
+          "Chinês (汉字)": "我的工作不好。",
+          "Pinyin": "Wǒ de gōngzuò bù hǎo.",
+          "Português": "O meu trabalho não é bom.",
+          "Regra Gramatical": "Suj. + 不 + Adj."
+        },
+        {
+          "Chinês (汉字)": "我在进出口公司工作。",
+          "Pinyin": "Wǒ zài jìnchūkǒu gōngsī gōngzuò.",
+          "Português": "Trabalho numa empresa de import/export.",
+          "Regra Gramatical": "在 + lugar + V"
+        },
+        {
+          "Chinês (汉字)": "我在里斯本大学学习。",
+          "Pinyin": "Wǒ zài Lǐsīběn Dàxué xuéxí.",
+          "Português": "Estudo na Universidade de Lisboa.",
+          "Regra Gramatical": "在 + lugar + V"
+        },
+        {
+          "Chinês (汉字)": "认识你很高兴！",
+          "Pinyin": "Rènshi nǐ hěn gāoxìng!",
+          "Português": "Muito prazer em conhecê-lo!",
+          "Regra Gramatical": "Expressão fixa"
+        },
+        {
+          "Chinês (汉字)": "请进！",
+          "Pinyin": "Qǐng jìn!",
+          "Português": "Entre, por favor!",
+          "Regra Gramatical": "请 + V"
+        },
+        {
+          "Chinês (汉字)": "请坐！",
+          "Pinyin": "Qǐng zuò!",
+          "Português": "Sente-se, por favor!",
+          "Regra Gramatical": "请 + V"
+        },
+        {
+          "Chinês (汉字)": "请喝茶！",
+          "Pinyin": "Qǐng hē chá!",
+          "Português": "Tome chá, por favor!",
+          "Regra Gramatical": "请 + V + Obj."
+        },
+        {
+          "Chinês (汉字)": "你在哪儿学习？",
+          "Pinyin": "Nǐ zài nǎr xuéxí?",
+          "Português": "Onde é que estudas?",
+          "Regra Gramatical": "Interr. com 哪儿"
+        },
+        {
+          "Chinês (汉字)": "东方学院怎么样？",
+          "Pinyin": "Dōngfāng Xuéyuàn zěnmeyàng?",
+          "Português": "Como é o Instituto Oriental?",
+          "Regra Gramatical": "Interr. com 怎么样"
+        },
+        {
+          "Chinês (汉字)": "这是我的女朋友。",
+          "Pinyin": "Zhè shì wǒ de nǚ péngyou.",
+          "Português": "Esta é a minha namorada.",
+          "Regra Gramatical": "这 + 是 + N"
+        },
+        {
+          "Chinês (汉字)": "可以给你打电话吗？",
+          "Pinyin": "Kěyǐ gěi nǐ dǎ diànhuà ma?",
+          "Português": "Posso telefonar-te?",
+          "Regra Gramatical": "可以 + V + 吗"
+        },
+        {
+          "Chinês (汉字)": "你也可以给我发电子邮件。",
+          "Pinyin": "Nǐ yě kěyǐ gěi wǒ fā diànzǐ yóujiàn.",
+          "Português": "Também podes enviar-me e-mail.",
+          "Regra Gramatical": "也可以 + V"
+        }
+      ]
+    },
+    {
+      "deck": "Lição 2 - Referência",
+      "headers": [
+        "Chinês (汉字)",
+        "Pinyin",
+        "Português",
+        "Tipo"
+      ],
+      "cards": [
+        {
+          "Chinês (汉字)": "中学",
+          "Pinyin": "zhōngxué",
+          "Português": "escola secundária",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "小学",
+          "Pinyin": "xiǎoxué",
+          "Português": "escola primária",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "电脑",
+          "Pinyin": "diànnǎo",
+          "Português": "computador",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "饮料",
+          "Pinyin": "yǐnliào",
+          "Português": "bebida",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "水",
+          "Pinyin": "shuǐ",
+          "Português": "água",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "橙汁",
+          "Pinyin": "chéngzhī",
+          "Português": "sumo de laranja",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "可口可乐",
+          "Pinyin": "Kěkǒukělè",
+          "Português": "coca-cola",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "咖啡",
+          "Pinyin": "kāfēi",
+          "Português": "café",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "亚洲",
+          "Pinyin": "Yàzhōu",
+          "Português": "Ásia",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "欧洲",
+          "Pinyin": "Ōuzhōu",
+          "Português": "Europa",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "美洲",
+          "Pinyin": "Měizhōu",
+          "Português": "América",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "大洋洲",
+          "Pinyin": "Dàyángzhōu",
+          "Português": "Oceânia",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "非洲",
+          "Pinyin": "Fēizhōu",
+          "Português": "África",
+          "Tipo": "n."
+        },
+        {
+          "Chinês (汉字)": "西方",
+          "Pinyin": "Xīfāng",
+          "Português": "Ocidente",
+          "Tipo": "p.l."
+        },
+        {
+          "Chinês (汉字)": "东方",
+          "Pinyin": "Dōngfāng",
+          "Português": "Oriente",
+          "Tipo": "p.l."
+        }
+      ]
+    },
+    {
+      "deck": "Fonética - Iniciais",
+      "headers": [
+        "Pinyin",
+        "AFI",
+        "Dica de pronúncia",
+        "Grupo"
+      ],
+      "cards": [
+        {
+          "Pinyin": "b",
+          "AFI": "[p]",
+          "Dica de pronúncia": "Como \"b\" em português, mas sem vibração das cordas vocais",
+          "Grupo": "Labiais"
+        },
+        {
+          "Pinyin": "p",
+          "AFI": "[p']",
+          "Dica de pronúncia": "Como \"p\" em português, com sopro de ar",
+          "Grupo": "Labiais"
+        },
+        {
+          "Pinyin": "m",
+          "AFI": "[m]",
+          "Dica de pronúncia": "Como \"m\" em português",
+          "Grupo": "Labiais"
+        },
+        {
+          "Pinyin": "f",
+          "AFI": "[f]",
+          "Dica de pronúncia": "Como \"f\" em português",
+          "Grupo": "Labiais"
+        },
+        {
+          "Pinyin": "d",
+          "AFI": "[t]",
+          "Dica de pronúncia": "Como \"d\" em português, sem vibração",
+          "Grupo": "Dentais"
+        },
+        {
+          "Pinyin": "t",
+          "AFI": "[t']",
+          "Dica de pronúncia": "Como \"t\" em português, com sopro de ar",
+          "Grupo": "Dentais"
+        },
+        {
+          "Pinyin": "n",
+          "AFI": "[n]",
+          "Dica de pronúncia": "Como \"n\" em português",
+          "Grupo": "Dentais"
+        },
+        {
+          "Pinyin": "l",
+          "AFI": "[l]",
+          "Dica de pronúncia": "Como \"l\" em português",
+          "Grupo": "Dentais"
+        },
+        {
+          "Pinyin": "g",
+          "AFI": "[k]",
+          "Dica de pronúncia": "Como \"g\" em português, sem vibração",
+          "Grupo": "Velares"
+        },
+        {
+          "Pinyin": "k",
+          "AFI": "[k']",
+          "Dica de pronúncia": "Como \"k\"/qu em português, com sopro de ar",
+          "Grupo": "Velares"
+        },
+        {
+          "Pinyin": "h",
+          "AFI": "[x]",
+          "Dica de pronúncia": "Como \"rr\" em português (aproximado)",
+          "Grupo": "Velares"
+        },
+        {
+          "Pinyin": "j",
+          "AFI": "[tɕ]",
+          "Dica de pronúncia": "Língua na parte anterior do palato, sem vibração",
+          "Grupo": "Palatais"
+        },
+        {
+          "Pinyin": "q",
+          "AFI": "[tɕ']",
+          "Dica de pronúncia": "Como j mas com sopro de ar mais forte",
+          "Grupo": "Palatais"
+        },
+        {
+          "Pinyin": "x",
+          "AFI": "[ɕ]",
+          "Dica de pronúncia": "Fricativo, língua perto do palato anterior",
+          "Grupo": "Palatais"
+        },
+        {
+          "Pinyin": "zh",
+          "AFI": "[tʂ]",
+          "Dica de pronúncia": "Retroflexo, língua curva para trás",
+          "Grupo": "Retroflexos"
+        },
+        {
+          "Pinyin": "ch",
+          "AFI": "[tʂ']",
+          "Dica de pronúncia": "Como zh mas com sopro de ar",
+          "Grupo": "Retroflexos"
+        },
+        {
+          "Pinyin": "sh",
+          "AFI": "[ʂ]",
+          "Dica de pronúncia": "Retroflexo fricativo",
+          "Grupo": "Retroflexos"
+        },
+        {
+          "Pinyin": "r",
+          "AFI": "[ʐ]",
+          "Dica de pronúncia": "Retroflexo sonoro",
+          "Grupo": "Retroflexos"
+        },
+        {
+          "Pinyin": "z",
+          "AFI": "[ts]",
+          "Dica de pronúncia": "Como \"ds\" em inglês \"reads\" (com voz sonora)",
+          "Grupo": "Sibilantes"
+        },
+        {
+          "Pinyin": "c",
+          "AFI": "[ts']",
+          "Dica de pronúncia": "Como \"ts\" em inglês \"boots\"",
+          "Grupo": "Sibilantes"
+        },
+        {
+          "Pinyin": "s",
+          "AFI": "[s]",
+          "Dica de pronúncia": "Como \"s\" em português",
+          "Grupo": "Sibilantes"
+        }
+      ]
+    }
+  ]
+}
