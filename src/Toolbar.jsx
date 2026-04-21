@@ -2,7 +2,7 @@ import React from 'react';
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Printer, Save, Download, Play, Square, Repeat, Languages } from 'lucide-react';
 import { Editor, Transforms } from 'slate';
 
-const Toolbar = ({ editor, savedSelection, onPrint, onTxtExport, onPlay, isPlaying, speechRate, onSpeechRateChange, isLooping, onToggleLoop, showPinyin, onTogglePinyin }) => {
+const Toolbar = ({ editor, savedSelection, onPrint, onTxtExport, onPlay, isPlaying, speechRate, onSpeechRateChange, isLooping, onToggleLoop, showPinyin, onTogglePinyin, fontSize = 20, onFontSizeChange }) => {
   const handleColorChange = (e) => {
     if (editor) {
       if (!editor.selection && savedSelection) {
@@ -38,6 +38,21 @@ const Toolbar = ({ editor, savedSelection, onPrint, onTxtExport, onPlay, isPlayi
             className="speed-slider"
           />
           <span className="speed-label">{speechRate.toFixed(1)}x</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginLeft: 4 }}>
+          <button
+            className="toolbar-button"
+            onMouseDown={(e) => { e.preventDefault(); onFontSizeChange?.(Math.max(14, fontSize - 2)); }}
+            title="Diminuir letra"
+            style={{ fontSize: 13, fontWeight: 700 }}
+          >A−</button>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 28, textAlign: 'center' }}>{fontSize}</span>
+          <button
+            className="toolbar-button"
+            onMouseDown={(e) => { e.preventDefault(); onFontSizeChange?.(Math.min(40, fontSize + 2)); }}
+            title="Aumentar letra"
+            style={{ fontSize: 13, fontWeight: 700 }}
+          >A+</button>
         </div>
         <button className="toolbar-button" title="Save to Local (Auto-saves as you type)">
           <Save size={18} />

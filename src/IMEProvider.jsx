@@ -732,13 +732,12 @@ export function IMEProvider({ children }) {
     return () => window.removeEventListener('keydown', handler, true);
   }, [confirmCandidate]);
 
-  const toggle = useCallback(() => {
-    setActive(a => !a);
-    setBuffer('');
-  }, []);
+  const toggle   = useCallback(() => { setActive(a => !a); setBuffer(''); }, []);
+  const activate = useCallback(() => { setActive(true);   setBuffer(''); }, []);
+  const deactivate = useCallback(() => { setActive(false); setBuffer(''); }, []);
 
   return (
-    <IMEContext.Provider value={{ active, toggle, buffer, clearBuffer }}>
+    <IMEContext.Provider value={{ active, toggle, activate, deactivate, buffer, clearBuffer }}>
       {children}
       {active && buffer && (
         <IMEPopup
@@ -777,7 +776,7 @@ function IMEPopup({ buffer, candidates, pos, onSelect, onClear }) {
             <button key={i} className="ime-cand" onClick={() => onSelect(c)}>
               <span className="ime-cand-num">{i + 1}</span>
               <span className="ime-cand-hz">{c}</span>
-              <span className="ime-cand-py">{pinyin(c, { type: 'array' })[0]}</span>
+              <span className="ime-cand-py">{pinyin(c, { type: 'string' })}</span>
             </button>
           ))}
         </div>

@@ -29,6 +29,7 @@ export default function App() {
   const [translations, setTranslations] = useState({});
   const [showPinyin, setShowPinyin] = useState(true);
   const [showHanzi, setShowHanzi] = useState(true);
+  const [fontSize, setFontSize] = useState(20);
   const [isLooping, setIsLooping] = useState(false);
   const isLoopingRef = useRef(isLooping);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,6 +37,12 @@ export default function App() {
   const playSeqIdRef = useRef(0);
 
   const ime = useIME();
+
+  // Auto-enable IME when entering the editor, disable when leaving
+  useEffect(() => {
+    if (view === 'editor') ime?.activate?.();
+    else ime?.deactivate?.();
+  }, [view]);
 
   const [value, setValue] = useState(() => {
     try {
@@ -266,9 +273,11 @@ export default function App() {
             onToggleLoop={handleToggleLoop}
             showPinyin={showPinyin}
             onTogglePinyin={() => setShowPinyin(p => !p)}
+            fontSize={fontSize}
+            onFontSizeChange={setFontSize}
           />
           <div className="workspace">
-            <WordarinEditor editor={editor} value={value} onChange={handleChange} showPinyin={showPinyin} />
+            <WordarinEditor editor={editor} value={value} onChange={handleChange} showPinyin={showPinyin} fontSize={fontSize} />
             <div className="translation-gutter">
               {value.map((node, index) => {
                 const t = translations[index];

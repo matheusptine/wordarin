@@ -55,7 +55,7 @@ const Leaf = ({ attributes, children, leaf }) => {
     return (
       <ruby {...attributes} className="pinyin-ruby">
         {renderChildren}
-        <rt className="pinyin-rt" contentEditable={false} style={{ userSelect: 'none' }}>{leaf.pinyinString}</rt>
+        <rt className="pinyin-rt" style={{ userSelect: 'none', pointerEvents: 'none' }}>{leaf.pinyinString}</rt>
       </ruby>
     );
   }
@@ -71,19 +71,20 @@ const Element = ({ attributes, children, element }) => {
   }
 };
 
-const WordarinEditor = ({ editor, value, onChange, showPinyin }) => {
+const WordarinEditor = ({ editor, value, onChange, showPinyin, fontSize = 20 }) => {
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const renderElement = useCallback((props) => <Element {...props} />, []);
 
   return (
     <div className="editor-page print-container">
       <Slate editor={editor} initialValue={value} onChange={onChange}>
-        <Editable 
+        <Editable
           className={`editor-content ${!showPinyin ? 'hide-pinyin' : ''}`}
+          style={{ '--editor-font-size': `${fontSize}px` }}
           renderLeaf={renderLeaf}
           renderElement={renderElement}
           decorate={decorate}
-          placeholder="Start typing your Mandarin text here..."
+          placeholder="Comece a escrever em mandarim..."
           spellCheck={false}
         />
       </Slate>

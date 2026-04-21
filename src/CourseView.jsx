@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { pinyin as getPinyin } from 'pinyin-pro';
 import AudioPlayer from './AudioPlayer';
 import StrokeOrder from './StrokeOrder';
 
@@ -12,33 +13,55 @@ function speakChinese(text) {
   window.speechSynthesis.speak(u);
 }
 
-// ── Ruby-annotated hanzi (pinyin above) ────────────────────────────────────
-function Ruby({ hanzi, pinyin, onClick }) {
+// ── Hanzi with per-character pinyin above ─────────────────────────────────
+function HanziRuby({ text, className = '' }) {
+  if (!text) return null;
   return (
-    <ruby
-      className="course-ruby"
-      onClick={onClick ? () => onClick(hanzi) : undefined}
-      style={onClick ? { cursor: 'pointer' } : {}}
-      title={onClick ? 'Clique para ouvir' : undefined}
-    >
-      {hanzi}
-      <rt>{pinyin}</rt>
-    </ruby>
+    <span className={`hanzi-ruby ${className}`}>
+      {[...text].map((ch, i) => {
+        if (ch === '\n') return <br key={i} />;
+        if (/[\u4e00-\u9fa5]/.test(ch)) {
+          const py = getPinyin(ch, { type: 'array' })[0] || '';
+          return (
+            <span key={i} className="hz-char">
+              <span className="hz-py">{py}</span>
+              <span className="hz-ch">{ch}</span>
+            </span>
+          );
+        }
+        return <span key={i} className="hz-punc">{ch}</span>;
+      })}
+    </span>
   );
 }
 
+function hanziOnly(text) {
+  if (!text) return '';
+  return text.split('\n').map(line => {
+    // strip 'hanzi[punc] Pinyin.' patterns
+    let r = line.replace(/([\u3002\uff01\uff1f])\s*[A-Z][\w\s\u00C0-\u024F,.!?;:]*$/, '$1');
+    // strip 'hanzi. Pinyin.' with a space-separated cap
+    r = r.replace(/\s+[A-Z][\w\s\u00C0-\u024F,.!?;:]*$/, '');
+    return r.trim();
+  }).join('\n');
+}
+
+function ChText({ text, className = '' }) {
+  if (!text) return null;
+  const clean = hanziOnly(text);
+  if (/[一-龥]/.test(clean)) return <HanziRuby text={clean} className={className} />;
+  return <span className={className}>{text}</span>;
+}
+
 // ── Single vocab card ───────────────────────────────────────────────────────
-function VocabCard({ item, onHanziClick }) {
+function VocabCard({ item, selected, onSelect }) {
   return (
-    <div className="vocab-card">
-      <div
-        className="vocab-hanzi"
-        onClick={() => onHanziClick(item.hanzi)}
-        title="Clique para ver traços"
-      >
-        {item.hanzi}
-      </div>
-      <div className="vocab-pinyin">{item.pinyin}</div>
+    <div
+      className={`vocab-card ${selected ? 'selected' : ''}`}
+      onClick={onSelect}
+      title="Clique para ver traços"
+    >
+      <HanziRuby text={item.hanzi} className="vocab-hanzi-ruby" />
       <div className="vocab-type">{item.type}</div>
       <div className="vocab-pt">{item.pt}</div>
       <div className="vocab-actions">
@@ -54,9 +77,57 @@ function VocabCard({ item, onHanziClick }) {
   );
 }
 
+// ── Vocab inline whiteboard ─────────────────────────────────────────────────
+function VocabWhiteboard({ item, onClose }) {
+  const chars = [...(item.hanzi || '')].filter(c => /[\u4e00-\u9fa5]/.test(c));
+  const [charIdx, setCharIdx] = useState(0);
+  const activeChar = chars[Math.min(charIdx, chars.length - 1)];
+
+  return (
+    <div className="vocab-whiteboard">
+      <div className="vocab-whiteboard-header">
+        <span className="vocab-whiteboard-hanzi">{item.hanzi}</span>
+        <div className="vocab-whiteboard-info">
+          <span className="vocab-whiteboard-pinyin">{item.pinyin}</span>
+          <span className="vocab-whiteboard-pt">{item.pt}</span>
+        </div>
+        <button className="vocab-whiteboard-close" onClick={onClose}>✕</button>
+      </div>
+
+      {chars.length > 1 && (
+        <div style={{ display: 'flex', gap: 6, padding: '8px 14px 0', background: '#fafff9' }}>
+          {chars.map((c, i) => (
+            <button
+              key={i}
+              onClick={() => setCharIdx(i)}
+              style={{
+                padding: '2px 8px', borderRadius: 6, fontSize: 18,
+                background: i === charIdx ? 'var(--green-700)' : 'var(--green-100)',
+                color: i === charIdx ? '#fff' : 'var(--green-900)',
+                border: '1px solid var(--green-200)',
+                cursor: 'pointer',
+              }}
+            >{c}</button>
+          ))}
+        </div>
+      )}
+
+      <div className="vocab-whiteboard-chars">
+        {activeChar && <StrokeOrder key={activeChar} char={activeChar} size={260} />}
+        {!activeChar && (
+          <div style={{ padding: 24, color: 'var(--text-muted)', fontSize: 13 }}>
+            Sem caracteres para praticar
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Vocabulary section ──────────────────────────────────────────────────────
-function VocabSection({ items, title, subtitle, onHanziClick }) {
+function VocabSection({ items, title, subtitle, selectedItem, onSelect }) {
   if (!items || items.length === 0) return null;
+
   return (
     <div className="course-section">
       <h3 className="section-title">
@@ -69,7 +140,8 @@ function VocabSection({ items, title, subtitle, onHanziClick }) {
           <VocabCard
             key={i}
             item={item}
-            onHanziClick={onHanziClick}
+            selected={selectedItem?.hanzi === item.hanzi}
+            onSelect={() => onSelect(selectedItem?.hanzi === item.hanzi ? null : item)}
           />
         ))}
       </div>
@@ -89,8 +161,7 @@ function DialogueList({ section }) {
       <div className="dialogue-list">
         {section.items.map((item, i) => (
           <div key={i} className="dialogue-row" onClick={() => speakChinese(item.hanzi)}>
-            <div className="dialogue-hanzi">{item.hanzi}</div>
-            <div className="dialogue-pinyin">{item.pinyin}</div>
+            <HanziRuby text={item.hanzi} className="dialogue-hanzi" />
             <div className="dialogue-pt">{item.pt}</div>
             <button className="dialogue-speak" onClick={(e) => { e.stopPropagation(); speakChinese(item.hanzi); }}>🔊</button>
           </div>
@@ -110,8 +181,7 @@ function TextScene({ text }) {
           <div key={i} className="text-line" onClick={() => speakChinese(line.hanzi)}>
             <span className="text-speaker">{line.speaker}</span>
             <div className="text-content">
-              <div className="text-hanzi">{line.hanzi}</div>
-              <div className="text-pinyin">{line.pinyin}</div>
+              <HanziRuby text={line.hanzi} className="text-hanzi" />
               <div className="text-pt">{line.pt}</div>
             </div>
             <button className="text-speak" onClick={(e) => { e.stopPropagation(); speakChinese(line.hanzi); }}>🔊</button>
@@ -146,7 +216,9 @@ function GrammarSection({ grammar }) {
                     <div className="grammar-ex-row affirm">
                       <span className="grammar-ex-label">✓</span>
                       <div>
-                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.affirmative.split('.')[0])}>{ex.affirmative}</div>
+                        <div className="grammar-ex-zh" onClick={() => speakChinese(hanziOnly(ex.affirmative))}>
+                          <HanziRuby text={hanziOnly(ex.affirmative)} />
+                        </div>
                         {ex.pt_aff && <div className="grammar-ex-pt">{ex.pt_aff}</div>}
                       </div>
                     </div>
@@ -155,7 +227,9 @@ function GrammarSection({ grammar }) {
                     <div className="grammar-ex-row negat">
                       <span className="grammar-ex-label">✗</span>
                       <div>
-                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.negative.split('.')[0])}>{ex.negative}</div>
+                        <div className="grammar-ex-zh" onClick={() => speakChinese(hanziOnly(ex.negative))}>
+                          <HanziRuby text={hanziOnly(ex.negative)} />
+                        </div>
                         {ex.pt_neg && <div className="grammar-ex-pt">{ex.pt_neg}</div>}
                       </div>
                     </div>
@@ -164,7 +238,9 @@ function GrammarSection({ grammar }) {
                     <div className="grammar-ex-row affirm">
                       <span className="grammar-ex-label">•</span>
                       <div>
-                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.hanzi)}>{ex.hanzi}</div>
+                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.hanzi)}>
+                          <HanziRuby text={ex.hanzi} />
+                        </div>
                         {ex.pinyin && <div className="grammar-ex-pin">{ex.pinyin}</div>}
                         {ex.pt && <div className="grammar-ex-pt">{ex.pt}</div>}
                       </div>
@@ -184,7 +260,9 @@ function GrammarSection({ grammar }) {
                     <div className="grammar-ex-row affirm">
                       <span className="grammar-ex-label">•</span>
                       <div>
-                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.hanzi.split('\n')[0])} style={{ whiteSpace: 'pre-line' }}>{ex.hanzi}</div>
+                        <div className="grammar-ex-zh" onClick={() => speakChinese(ex.hanzi.split('\n')[0])}>
+                          <HanziRuby text={hanziOnly(ex.hanzi)} />
+                        </div>
                         {ex.pinyin && <div className="grammar-ex-pin" style={{ whiteSpace: 'pre-line' }}>{ex.pinyin}</div>}
                         {ex.pt && <div className="grammar-ex-pt" style={{ whiteSpace: 'pre-line' }}>{ex.pt}</div>}
                       </div>
@@ -218,7 +296,7 @@ function ExFill({ items, title }) {
       <h4 className="exercise-title">✏️ {title}</h4>
       {items.map((item, i) => (
         <div key={i} className={`ex-fill-item ${checked[i] || ''}`}>
-          <div className="ex-question" style={{ whiteSpace: 'pre-line' }}>{item.question}</div>
+          <div className="ex-question"><ChText text={item.question} /></div>
           <div className="ex-fill-row">
             <input
               className="ex-input"
@@ -236,7 +314,7 @@ function ExFill({ items, title }) {
           </div>
           {revealed[i] && (
             <div className={`ex-answer ${checked[i] || ''}`}>
-              <strong>Resposta:</strong> {item.answer}
+              <strong>Resposta:</strong> <ChText text={item.answer} />
               {checked[i] === 'correct' && <span className="ex-badge correct">✓ Correcto!</span>}
               {checked[i] === 'wrong' && <span className="ex-badge wrong">✗ Tenta outra vez</span>}
             </div>
@@ -257,13 +335,13 @@ function ExTranslate({ items, title }) {
       <h4 className="exercise-title">🔤 {title}</h4>
       {items.map((item, i) => (
         <div key={i} className="ex-translate-item">
-          <div className="ex-question">{item.question}</div>
+          <div className="ex-question"><ChText text={item.question} /></div>
           <button className="ex-reveal-btn" onClick={() => toggle(i)}>
             {revealed[i] ? '🙈 Ocultar' : '👁 Ver resposta'}
           </button>
           {revealed[i] && (
             <div className="ex-answer" onClick={() => speakChinese(item.answer)}>
-              {item.answer}
+              <ChText text={item.answer} />
               <button className="ex-speak" onClick={() => speakChinese(item.answer)}>🔊</button>
             </div>
           )}
@@ -281,13 +359,13 @@ function ExTransform({ items, title }) {
       <h4 className="exercise-title">🔄 {title}</h4>
       {items.map((item, i) => (
         <div key={i} className="ex-translate-item">
-          <div className="ex-question" onClick={() => speakChinese(item.question)}>{item.question}</div>
+          <div className="ex-question" onClick={() => speakChinese(item.question)}><ChText text={item.question} /></div>
           <button className="ex-reveal-btn" onClick={() => setRevealed(r => ({ ...r, [i]: !r[i] }))}>
             {revealed[i] ? '🙈 Ocultar' : '👁 Ver resposta'}
           </button>
           {revealed[i] && (
             <div className="ex-answer" onClick={() => speakChinese(item.answer)}>
-              {item.answer}
+              <ChText text={item.answer} />
               <button className="ex-speak" onClick={() => speakChinese(item.answer)}>🔊</button>
             </div>
           )}
@@ -345,7 +423,7 @@ function ExMatch({ pairs, title }) {
               onClick={() => pick('a', i, p.a)}
               disabled={isMatched(p.a)}
             >
-              {p.a}
+              <ChText text={p.a} />
             </button>
           ))}
         </div>
@@ -360,7 +438,7 @@ function ExMatch({ pairs, title }) {
               onClick={() => pick('b', i, p.b)}
               disabled={isMatched(p.b)}
             >
-              {p.b}
+              <ChText text={p.b} />
             </button>
           ))}
         </div>
@@ -519,7 +597,7 @@ function PhoneticsSection({ phonetics, subsections }) {
 }
 
 // ── Characters section with stroke order ─────────────────────────────────────
-function CharactersSection({ characters, strokes, onHanziClick }) {
+function CharactersSection({ characters, strokes }) {
   return (
     <div className="course-section">
       <h3 className="section-title">
@@ -543,13 +621,9 @@ function CharactersSection({ characters, strokes, onHanziClick }) {
           <div
             key={i}
             className="char-card"
-            onClick={() => onHanziClick(c.hanzi)}
-            title="Clique para praticar traços"
+            onClick={() => speakChinese(c.hanzi)}
           >
-            <div className="char-hanzi" onClick={(e) => { e.stopPropagation(); speakChinese(c.hanzi); }}>
-              {c.hanzi}
-            </div>
-            <div className="char-pinyin">{c.pinyin}</div>
+            <HanziRuby text={c.hanzi} className="char-hanzi" />
             <div className="char-meaning">{c.meaning}</div>
             {c.strokes && <div className="char-strokes">{c.strokes} traço{c.strokes !== 1 ? 's' : ''}</div>}
           </div>
@@ -559,45 +633,9 @@ function CharactersSection({ characters, strokes, onHanziClick }) {
   );
 }
 
-// ── Stroke practice side panel ───────────────────────────────────────────────
-function StrokePanel({ chars, label, onClose }) {
-  const [idx, setIdx] = useState(0);
-  const char = chars[Math.min(idx, chars.length - 1)];
-
-  return (
-    <div className="stroke-side-panel">
-      <div className="stroke-side-header">
-        <span className="stroke-side-label">{label}</span>
-        {chars.length > 1 && (
-          <div className="stroke-side-nav">
-            {chars.map((c, i) => (
-              <button
-                key={i}
-                className={`stroke-side-nav-btn ${i === idx ? 'active' : ''}`}
-                onClick={() => setIdx(i)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        )}
-        <button className="stroke-side-close" onClick={onClose} title="Fechar">✕</button>
-      </div>
-      <div className="stroke-side-body">
-        <StrokeOrder key={char} char={char} size={300} />
-      </div>
-    </div>
-  );
-}
-
 // ── Main CourseView ──────────────────────────────────────────────────────────
 export default function CourseView({ lesson, showPinyin = true, showHanzi = true }) {
-  const [panelChars, setPanelChars] = useState(null);
-
-  const openPanel = (hanziStr) => {
-    const chars = [...(hanziStr || '')].filter(c => /[\u4e00-\u9fa5]/.test(c));
-    if (chars.length) setPanelChars({ chars, label: hanziStr });
-  };
+  const [selectedVocabItem, setSelectedVocabItem] = useState(null);
 
   if (!lesson) {
     return (
@@ -612,15 +650,12 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
 
   const viewClass = [
     'course-view',
-    panelChars ? 'has-panel' : '',
     !showPinyin ? 'hide-pinyin' : '',
     !showHanzi  ? 'hide-hanzi'  : '',
   ].filter(Boolean).join(' ');
 
   return (
     <div className={viewClass}>
-
-      {/* ── Left: scrollable content ── */}
       <div className="course-scroll-area">
         <div className="course-header" style={{ '--lesson-color': lesson.color || '#52b788' }}>
           <div className="course-header-inner">
@@ -654,20 +689,35 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
 
           {lesson.characters && (
             <div id="section-characters">
-              <CharactersSection characters={lesson.characters} strokes={lesson.strokes} onHanziClick={openPanel} />
+              <CharactersSection characters={lesson.characters} strokes={lesson.strokes} />
             </div>
           )}
 
           {(lesson.vocabulary || lesson.supplementaryVocabulary || lesson.referenceVocabulary) && (
             <div id="section-vocabulary">
               {lesson.vocabulary && (
-                <VocabSection items={lesson.vocabulary} title="词汇 Vocabulário" onHanziClick={openPanel} />
+                <VocabSection
+                  items={lesson.vocabulary}
+                  title="词汇 Vocabulário"
+                  selectedItem={selectedVocabItem}
+                  onSelect={setSelectedVocabItem}
+                />
               )}
               {lesson.supplementaryVocabulary && (
-                <VocabSection items={lesson.supplementaryVocabulary} title="补充词汇 Vocabulário suplementar" onHanziClick={openPanel} />
+                <VocabSection
+                  items={lesson.supplementaryVocabulary}
+                  title="补充词汇 Vocabulário suplementar"
+                  selectedItem={selectedVocabItem}
+                  onSelect={setSelectedVocabItem}
+                />
               )}
               {lesson.referenceVocabulary && (
-                <VocabSection items={lesson.referenceVocabulary} title="参考词汇 Vocabulário de referência" onHanziClick={openPanel} />
+                <VocabSection
+                  items={lesson.referenceVocabulary}
+                  title="参考词汇 Vocabulário de referência"
+                  selectedItem={selectedVocabItem}
+                  onSelect={setSelectedVocabItem}
+                />
               )}
             </div>
           )}
@@ -696,15 +746,11 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
         </div>
       </div>
 
-      {/* ── Right: stroke practice panel ── */}
-      {panelChars && (
-        <StrokePanel
-          chars={panelChars.chars}
-          label={panelChars.label}
-          onClose={() => setPanelChars(null)}
-        />
+      {selectedVocabItem && (
+        <div className="course-whiteboard-panel">
+          <VocabWhiteboard item={selectedVocabItem} onClose={() => setSelectedVocabItem(null)} />
+        </div>
       )}
-
     </div>
   );
 }
