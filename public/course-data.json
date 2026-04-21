@@ -1,0 +1,547 @@
+{
+  "lessons": [
+    {
+      "id": "intro",
+      "number": "Introdução",
+      "title": "Saudações e Cortesia",
+      "chineseTitle": "问候与礼貌",
+      "color": "#52b788",
+      "audio": { "student": "/audio/intro.mp3" },
+      "sections": [
+        {
+          "type": "dialogue-list",
+          "title": "Expressões de saudação e de cortesia",
+          "chineseTitle": "问候语和礼貌语",
+          "items": [
+            { "hanzi": "你好！", "pinyin": "Nǐ hǎo！", "pt": "Olá! / Como está?" },
+            { "hanzi": "你好！", "pinyin": "Nǐ hǎo！", "pt": "Olá! / Estou bem." },
+            { "hanzi": "谢谢！", "pinyin": "Xièxie！", "pt": "Obrigado/obrigada!" },
+            { "hanzi": "不客气。", "pinyin": "Bú kèqi.", "pt": "De nada." },
+            { "hanzi": "对不起！", "pinyin": "Duìbuqǐ！", "pt": "Desculpe / Perdão." },
+            { "hanzi": "没关系。", "pinyin": "Méi guānxi.", "pt": "Não faz mal. / Não tem de quê." },
+            { "hanzi": "再见！", "pinyin": "Zàijiàn！", "pt": "Adeus! / Até a próxima! / Até à vista!" },
+            { "hanzi": "再见！", "pinyin": "Zàijiàn！", "pt": "Adeus!" }
+          ]
+        },
+        {
+          "type": "dialogue-list",
+          "title": "Expressões usuais na sala de aula",
+          "chineseTitle": "课堂用语",
+          "items": [
+            { "hanzi": "上课。", "pinyin": "Shàng kè.", "pt": "Começar a aula." },
+            { "hanzi": "下课。", "pinyin": "Xià kè.", "pt": "Terminar a aula." },
+            { "hanzi": "现在休息一下。", "pinyin": "Xiànzài xiūxi yīxià.", "pt": "Agora faz-se um intervalo." },
+            { "hanzi": "现在继续上课。", "pinyin": "Xiànzài jìxù shàng kè.", "pt": "Continuar a aula." },
+            { "hanzi": "请翻书，翻到第三页。", "pinyin": "Qǐng fān shū, fān dào dì-sān yè.", "pt": "Abra(m) o livro para página 3, por favor." },
+            { "hanzi": "请听录音。", "pinyin": "Qǐng tīng lùyīn.", "pt": "Ouça(m) a gravação, por favor." },
+            { "hanzi": "请跟我读。", "pinyin": "Qǐng gēn wǒ dú.", "pt": "Por favor, leia(m) comigo." },
+            { "hanzi": "请再说一遍。", "pinyin": "Qǐng zài shuō yī biàn.", "pt": "Diga(m) outra vez, por favor." },
+            { "hanzi": "这是什么意思？", "pinyin": "Zhè shì shénme yìsi?", "pt": "O que é que isto significa?" },
+            { "hanzi": "（汉语）怎么说？", "pinyin": "(Hànyǔ) zěnme shuō?", "pt": "Como se diz ... em chinês?" },
+            { "hanzi": "（汉字）怎么写？", "pinyin": "(Hànzì) zěnme xiě?", "pt": "Como se escreve ...?" },
+            { "hanzi": "请读一下。", "pinyin": "Qǐng dú yīxià.", "pt": "Leia(m), por favor." },
+            { "hanzi": "请写一下。", "pinyin": "Qǐng xiě yīxià.", "pt": "Escreva(m), por favor." },
+            { "hanzi": "请翻译一下。", "pinyin": "Qǐng fānyì yīxià.", "pt": "Traduza(m), por favor." },
+            { "hanzi": "对不对？", "pinyin": "Duì bu duì?", "pt": "Está correcto?" },
+            { "hanzi": "对。", "pinyin": "Duì.", "pt": "Está, sim. Está correcto." },
+            { "hanzi": "不对。", "pinyin": "Bú duì.", "pt": "Não. Não está correcto." },
+            { "hanzi": "请看黑板。", "pinyin": "Qǐng kàn hēibǎn.", "pt": "Olhe(m) para o quadro, por favor." },
+            { "hanzi": "现在听写。", "pinyin": "Xiànzài tīngxiě.", "pt": "Faça(m) agora um ditado." },
+            { "hanzi": "现在做练习。", "pinyin": "Xiànzài zuò liànxí.", "pt": "Faça(m) agora os exercícios." },
+            { "hanzi": "今天的作业是……", "pinyin": "Jīntiān de zuòyè shì……", "pt": "Hoje o trabalho de casa é ..." }
+          ]
+        }
+      ],
+      "vocabulary": [
+        { "hanzi": "你好", "pinyin": "nǐ hǎo", "type": "expr.", "pt": "olá, como está" },
+        { "hanzi": "谢谢", "pinyin": "xièxie", "type": "v.", "pt": "obrigado/obrigada" },
+        { "hanzi": "不客气", "pinyin": "bú kèqi", "type": "expr.", "pt": "de nada" },
+        { "hanzi": "对不起", "pinyin": "duìbuqǐ", "type": "expr.", "pt": "desculpe, perdão" },
+        { "hanzi": "没关系", "pinyin": "méi guānxi", "type": "expr.", "pt": "não faz mal, não tem de quê" },
+        { "hanzi": "再见", "pinyin": "zàijiàn", "type": "expr.", "pt": "adeus, até a próxima" }
+      ],
+      "exercises": [
+        {
+          "type": "match",
+          "title": "Liga a expressão ao significado",
+          "pairs": [
+            { "a": "谢谢", "b": "Obrigado" },
+            { "a": "对不起", "b": "Desculpe" },
+            { "a": "没关系", "b": "Não faz mal" },
+            { "a": "再见", "b": "Adeus" },
+            { "a": "不客气", "b": "De nada" }
+          ]
+        },
+        {
+          "type": "fill",
+          "title": "Complete o diálogo",
+          "items": [
+            { "question": "A: 你好！\nB: ___！", "answer": "你好" },
+            { "question": "A: 谢谢！\nB: ___。", "answer": "不客气" },
+            { "question": "A: 对不起！\nB: ___。", "answer": "没关系" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "licao0",
+      "number": "Lição 0",
+      "title": "Fonética",
+      "chineseTitle": "语音",
+      "color": "#74c69d",
+      "subsections": [
+        { "id": "0.1", "title": "Introdução à fonética", "audio": "/audio/licao0-0.1.mp3" },
+        { "id": "0.2", "title": "Consoantes e vogais I", "audio": "/audio/licao0-0.2.mp3" },
+        { "id": "0.3", "title": "Tons", "audio": "/audio/licao0-0.3.mp3" },
+        { "id": "0.4", "title": "Mudança de ton de 不", "audio": "/audio/licao0-0.4.mp3" },
+        { "id": "0.5", "title": "Consoantes e vogais II", "audio": "/audio/licao0-0.5.mp3" },
+        { "id": "0.6", "title": "Consoantes e vogais III", "audio": "/audio/licao0-0.6.mp3" }
+      ],
+      "phonetics": {
+        "initials": ["b","p","m","f","d","t","n","l","g","k","h","j","q","x","zh","ch","sh","r","z","c","s"],
+        "finals": ["a","o","e","i","u","ü","ai","ei","ao","ou","an","en","ang","eng","ong","ia","ie","iao","iou","ian","in","iang","ing","iong","ua","uo","uai","uei","uan","uen","uang","ueng","üe","üan","ün"],
+        "tones": [
+          { "number": 1, "mark": "ˉ", "name": "Primeiro tom", "chinese": "第一声", "desc": "tom alto e nivelado", "example": "mā", "freq": "55" },
+          { "number": 2, "mark": "ˊ", "name": "Segundo tom", "chinese": "第二声", "desc": "tom ascendente", "example": "má", "freq": "35" },
+          { "number": 3, "mark": "ˇ", "name": "Terceiro tom", "chinese": "第三声", "desc": "tom descendente-ascendente", "example": "mǎ", "freq": "214" },
+          { "number": 4, "mark": "ˋ", "name": "Quarto tom", "chinese": "第四声", "desc": "tom descendente", "example": "mà", "freq": "51" }
+        ],
+        "toneExamples": [
+          { "pinyin": "mā", "meaning": "mãe" },
+          { "pinyin": "má", "meaning": "cânhamo" },
+          { "pinyin": "mǎ", "meaning": "cavalo" },
+          { "pinyin": "mà", "meaning": "insultos" }
+        ],
+        "buToneChange": {
+          "rule": "不 bù é geralmente pronunciado em 4.º tom. Quando seguido de outra sílaba em 4.º tom, muda-se para o 2.º tom.",
+          "examples": [
+            { "original": "bù + 1.º tom", "result": "bù", "example": "不说汉语 bù shuō Hànyǔ" },
+            { "original": "bù + 2.º tom", "result": "bù", "example": "不白 bù bái" },
+            { "original": "bù + 3.º tom", "result": "bù", "example": "不好 bù hǎo" },
+            { "original": "bù + 4.º tom", "result": "bú", "example": "不是 bú shì" }
+          ]
+        }
+      },
+      "characters": [
+        { "hanzi": "一", "pinyin": "yī", "meaning": "um", "strokes": 1 },
+        { "hanzi": "二", "pinyin": "èr", "meaning": "dois", "strokes": 2 },
+        { "hanzi": "三", "pinyin": "sān", "meaning": "três", "strokes": 3 },
+        { "hanzi": "四", "pinyin": "sì", "meaning": "quatro", "strokes": 5 },
+        { "hanzi": "五", "pinyin": "wǔ", "meaning": "cinco", "strokes": 4 },
+        { "hanzi": "六", "pinyin": "liù", "meaning": "seis", "strokes": 4 },
+        { "hanzi": "七", "pinyin": "qī", "meaning": "sete", "strokes": 2 },
+        { "hanzi": "八", "pinyin": "bā", "meaning": "oito", "strokes": 2 },
+        { "hanzi": "九", "pinyin": "jiǔ", "meaning": "nove", "strokes": 2 },
+        { "hanzi": "十", "pinyin": "shí", "meaning": "dez", "strokes": 2 }
+      ],
+      "strokes": {
+        "fundamental": [
+          { "name": "Héng", "desc": "traço horizontal (da esquerda para a direita)", "symbol": "一" },
+          { "name": "Shù", "desc": "traço vertical (de cima para baixo)", "symbol": "丨" },
+          { "name": "Piě", "desc": "traço inclinado à esquerda", "symbol": "丿" },
+          { "name": "Diǎn", "desc": "ponto", "symbol": "丶" },
+          { "name": "Nà", "desc": "traço inclinado à direita", "symbol": "㇏" },
+          { "name": "Tí", "desc": "traço para cima", "symbol": "㇀" },
+          { "name": "Zhé", "desc": "traço curvado", "symbol": "乛" },
+          { "name": "Gōu", "desc": "traço em forma de gancho", "symbol": "亅" }
+        ],
+        "rules": [
+          "Primeiro o traço inclinado à esquerda e depois à direita",
+          "De cima para baixo",
+          "Primeiro o traço horizontal e depois o vertical",
+          "De fora para dentro",
+          "Fechar depois de preencher o quadro",
+          "O traço central e depois os dos dois lados",
+          "Primeiro o corpo principal e depois o traço de ligação"
+        ]
+      },
+      "exercises": [
+        {
+          "type": "tone-identify",
+          "title": "Identifique o tom",
+          "audio": "/audio/ex-licao0-0.1.mp3",
+          "items": [
+            { "question": "Qual o tom de: mā", "options": ["1.º tom","2.º tom","3.º tom","4.º tom"], "answer": 0 },
+            { "question": "Qual o tom de: má", "options": ["1.º tom","2.º tom","3.º tom","4.º tom"], "answer": 1 },
+            { "question": "Qual o tom de: mǎ", "options": ["1.º tom","2.º tom","3.º tom","4.º tom"], "answer": 2 },
+            { "question": "Qual o tom de: mà", "options": ["1.º tom","2.º tom","3.º tom","4.º tom"], "answer": 3 }
+          ]
+        },
+        {
+          "type": "match",
+          "title": "Liga o número ao caractere",
+          "pairs": [
+            { "a": "一", "b": "um" },
+            { "a": "三", "b": "três" },
+            { "a": "五", "b": "cinco" },
+            { "a": "八", "b": "oito" },
+            { "a": "十", "b": "dez" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "licao1",
+      "number": "Lição 1",
+      "title": "Qual é o seu nome?",
+      "chineseTitle": "您贵姓",
+      "color": "#40916c",
+      "audio": {
+        "student": "/audio/licao1.mp3",
+        "exercises": "/audio/ex-licao1.mp3"
+      },
+      "vocabulary": [
+        { "num": 1, "hanzi": "您", "pinyin": "nín", "type": "pron.", "pt": "você (forma de cortesia)" },
+        { "num": 2, "hanzi": "贵", "pinyin": "guì", "type": "adj.", "pt": "precioso; honrado" },
+        { "num": 3, "hanzi": "姓", "pinyin": "xìng", "type": "v./n.", "pt": "chamar-se (sobrenome); apelido" },
+        { "num": 4, "hanzi": "我", "pinyin": "wǒ", "type": "pron.", "pt": "eu" },
+        { "num": 5, "hanzi": "叫", "pinyin": "jiào", "type": "v.", "pt": "chamar-se, chamarem" },
+        { "num": 6, "hanzi": "什么", "pinyin": "shénme", "type": "pron.", "pt": "o quê? que?" },
+        { "num": 7, "hanzi": "名字", "pinyin": "míngzi", "type": "n.", "pt": "nome" },
+        { "num": 8, "hanzi": "是", "pinyin": "shì", "type": "v.", "pt": "ser, estar" },
+        { "num": 9, "hanzi": "吗", "pinyin": "ma", "type": "part.", "pt": "partícula interrogativa" },
+        { "num": 10, "hanzi": "也", "pinyin": "yě", "type": "adv.", "pt": "também" },
+        { "num": 11, "hanzi": "都", "pinyin": "dōu", "type": "adv.", "pt": "todos, tudo, ambos" },
+        { "num": 12, "hanzi": "说", "pinyin": "shuō", "type": "v.", "pt": "falar, dizer" },
+        { "num": 13, "hanzi": "汉语", "pinyin": "Hànyǔ", "type": "n.", "pt": "língua chinesa (mandarim)" },
+        { "num": 14, "hanzi": "只", "pinyin": "zhǐ", "type": "adv.", "pt": "somente, apenas" },
+        { "num": 15, "hanzi": "老师", "pinyin": "lǎoshī", "type": "n.", "pt": "professor(a)" },
+        { "num": 16, "hanzi": "学生", "pinyin": "xuésheng", "type": "n.", "pt": "estudante, aluno" },
+        { "num": 17, "hanzi": "葡萄牙人", "pinyin": "Pútáoyárén", "type": "n.", "pt": "português(a) (pessoa)" },
+        { "num": 18, "hanzi": "中国人", "pinyin": "Zhōngguórén", "type": "n.", "pt": "chinês/chinesa (pessoa)" },
+        { "num": 19, "hanzi": "美国人", "pinyin": "Měiguórén", "type": "n.", "pt": "americano(a) (pessoa)" },
+        { "num": 20, "hanzi": "不", "pinyin": "bù", "type": "adv.", "pt": "não" },
+        { "num": 21, "hanzi": "他", "pinyin": "tā", "type": "pron.", "pt": "ele" },
+        { "num": 22, "hanzi": "她", "pinyin": "tā", "type": "pron.", "pt": "ela" },
+        { "num": 23, "hanzi": "你们", "pinyin": "nǐmen", "type": "pron.", "pt": "vocês" },
+        { "num": 24, "hanzi": "我们", "pinyin": "wǒmen", "type": "pron.", "pt": "nós" },
+        { "num": 25, "hanzi": "他们", "pinyin": "tāmen", "type": "pron.", "pt": "eles" },
+        { "num": 26, "hanzi": "您好", "pinyin": "nín hǎo", "type": "expr.", "pt": "olá (formal)" },
+        { "num": 27, "hanzi": "你好", "pinyin": "nǐ hǎo", "type": "expr.", "pt": "olá (informal)" },
+        { "num": 28, "hanzi": "请问", "pinyin": "qǐngwèn", "type": "expr.", "pt": "com licença, por favor (para perguntar)" },
+        { "num": 29, "hanzi": "巴西", "pinyin": "Bāxī", "type": "n.p.", "pt": "Brasil" },
+        { "num": 30, "hanzi": "美国", "pinyin": "Měiguó", "type": "n.p.", "pt": "Estados Unidos da América" }
+      ],
+      "supplementaryVocabulary": [
+        { "hanzi": "中文／汉语", "pinyin": "Zhōngwén / Hànyǔ", "pt": "língua chinesa" },
+        { "hanzi": "葡萄牙语", "pinyin": "Pútáoyáyǔ", "pt": "língua portuguesa" },
+        { "hanzi": "法语", "pinyin": "Fǎyǔ", "pt": "língua francesa" },
+        { "hanzi": "英语", "pinyin": "Yīngyǔ", "pt": "língua inglesa" },
+        { "hanzi": "日语", "pinyin": "Rìyǔ", "pt": "língua japonesa" },
+        { "hanzi": "葡萄牙", "pinyin": "Pútáoyá", "pt": "Portugal" },
+        { "hanzi": "中国", "pinyin": "Zhōngguó", "pt": "China" },
+        { "hanzi": "里斯本", "pinyin": "Lǐsīběn", "pt": "Lisboa" },
+        { "hanzi": "加拿大", "pinyin": "Jiānádà", "pt": "Canadá" },
+        { "hanzi": "东方研究学院", "pinyin": "Dōngfāng Yánjiū Xuéyuàn", "pt": "Instituto Oriental" }
+      ],
+      "texts": [
+        {
+          "number": "1",
+          "context": "Bai Xiaohong, estudante chinesa, e Wang Ying, estudante canadiana de ascendência chinesa, são colegas da universidade. Éaqui o primeiro encontro delas.",
+          "lines": [
+            { "speaker": "白小虹", "pinyin": "Nín hǎo！", "hanzi": "您　好！", "pt": "Olá!" },
+            { "speaker": "王英", "pinyin": "Nín hǎo！", "hanzi": "您　好！", "pt": "Olá!" },
+            { "speaker": "白小虹", "pinyin": "Nín guìxìng？", "hanzi": "您贵姓？", "pt": "Qual é o seu apelido?" },
+            { "speaker": "王英", "pinyin": "Wǒ xìng Wáng. Nín ne？", "hanzi": "我　姓　王。您呢？", "pt": "O meu apelido é Wang. E você?" },
+            { "speaker": "白小虹", "pinyin": "Wǒ xìng Bái.", "hanzi": "我　姓　白。", "pt": "O meu apelido é Bai." },
+            { "speaker": "王英", "pinyin": "Nín shì Kāsídǎorén ma？", "hanzi": "您是葡萄牙人吗？", "pt": "Você é portuguesa?" },
+            { "speaker": "白小虹", "pinyin": "Bù, wǒ bú shì Kāsídǎorén. Wǒ shì Zhōngguórén. Nín shì bu shì Kāsídǎorén？", "hanzi": "不，我不是葡萄牙人，我是中国人。您是不是葡萄牙人？", "pt": "Não, eu não sou portuguesa, eu sou chinesa. Você é ou não é portuguesa?" },
+            { "speaker": "王英", "pinyin": "Wǒ shì Jiānádàrén.", "hanzi": "我是加拿大人。", "pt": "Eu sou canadiana." }
+          ]
+        },
+        {
+          "number": "2",
+          "context": "Na presença do professor Liu.",
+          "lines": [
+            { "speaker": "张老师", "pinyin": "Nǐ hǎo！Nǐ shì xuésheng ma？", "hanzi": "你　好！你是学生吗？", "pt": "Olá! Você é estudante?" },
+            { "speaker": "同学甲", "pinyin": "Nín hǎo！Wǒ shì xuésheng. Wǒ shì lǎoshī ma？", "hanzi": "您　好！我是学生。您是老师吗？", "pt": "Olá! Eu sou estudante. O senhor é professor?" },
+            { "speaker": "张老师", "pinyin": "Duì. Wǒ shì lǎoshī.", "hanzi": "对。我是老师。", "pt": "Sim. Eu sou professor." },
+            { "speaker": "同学乙", "pinyin": "Nín hǎo！Nín shuō Yīngyǔ ma？", "hanzi": "您好！您说英语吗？", "pt": "Olá! O senhor fala inglês?" },
+            { "speaker": "张老师", "pinyin": "Wǒ bù shuō Pútáoyáyǔ. Wǒ zhǐ shuō Hànyǔ.", "hanzi": "我不说葡萄牙语，我只说汉语。", "pt": "Eu não falo português. Eu só falo chinês." }
+          ]
+        }
+      ],
+      "grammar": [
+        {
+          "title": "Frase simples 1: sujeito + verbo (+ objecto)",
+          "chineseTitle": "简单句型1：主语 + 动词（+ 宾语）",
+          "content": "Semelhante a português, em chinês, a frase simples é constituída por: Sujeito + Verbo (+ Objecto)",
+          "pattern": "Sujeito + Verbo + Objecto",
+          "examples": [
+            { "affirmative": "我姓王。Wǒ xìng Wáng.", "pt_aff": "O meu apelido é Wang.", "negative": "我不姓王。Wǒ bù xìng Wáng.", "pt_neg": "O meu apelido não é Wang." },
+            { "affirmative": "我说法语。Wǒ shuō Fǎyǔ.", "pt_aff": "Eu falo francês.", "negative": "我不说法语。Wǒ bù shuō Fǎyǔ.", "pt_neg": "Eu não falo francês." },
+            { "affirmative": "我们都是中国人。Wǒmen dōu shì Zhōngguórén.", "pt_aff": "Somos todos chineses.", "negative": "我们都不是中国人。Wǒmen dōu bù shì Zhōngguórén.", "pt_neg": "Nenhum de nós é chinês." }
+          ]
+        },
+        {
+          "title": "Advérbio + verbo",
+          "chineseTitle": "副词 + 动词",
+          "content": "Ao contrário do português, o advérbio em chinês aparece sempre antes do verbo.",
+          "pattern": "Advérbio + Verbo",
+          "examples": [
+            { "affirmative": "他不是美国人。Tā bú shì Měiguórén.", "pt_aff": "Ele não é americano." },
+            { "affirmative": "他也是美国人。Tā yě shì Měiguórén.", "pt_aff": "Ele também é americano." },
+            { "affirmative": "他们都是美国人。Tāmen dōu shì Měiguórén.", "pt_aff": "Eles são todos americanos." },
+            { "affirmative": "他只说汉语。Tā zhǐ shuō Hànyǔ.", "pt_aff": "Ele só fala chinês." }
+          ]
+        },
+        {
+          "title": "Frases interrogativas",
+          "chineseTitle": "疑问句",
+          "subsections": [
+            {
+              "label": "A. Interrogativas com 吗 ma",
+              "desc": "Acrescentar 吗 ma ao final de uma frase declarativa. Frase declarativa + 吗？",
+              "examples": [
+                { "hanzi": "您是中国人吗？", "pinyin": "Nín shì Zhōngguórén ma?", "pt": "Você é chinês?" },
+                { "hanzi": "他也是中国人吗？", "pinyin": "Tā yě shì Zhōngguórén ma?", "pt": "Ele também é chinês?" },
+                { "hanzi": "你们都说汉语吗？", "pinyin": "Nǐmen dōu shuō Hànyǔ ma?", "pt": "Falam todos vocês chinês?" }
+              ]
+            },
+            {
+              "label": "B. Interrogativas selectivas: X 不 X",
+              "desc": "Estrutura: Verbo + 不 bù + Verbo. O 不 aqui é pronunciado em tom átono.",
+              "examples": [
+                { "hanzi": "您是不是中国人？", "pinyin": "Nín shì bu shì Zhōngguórén?", "pt": "Você é chinês ou não?" },
+                { "hanzi": "他是不是中国人？", "pinyin": "Tā shì bu shì Zhōngguórén?", "pt": "Ele é chinês ou não?" },
+                { "hanzi": "你们说不说汉语？", "pinyin": "Nǐmen shuō bu shuō Hànyǔ?", "pt": "Vocês falam chinês ou não?" }
+              ]
+            },
+            {
+              "label": "C. Frases com interrogativos",
+              "desc": "Palavras interrogativas como 什么、哪、谁 ocupam a posição do elemento que substituem na frase.",
+              "examples": [
+                { "hanzi": "你是哪国人？", "pinyin": "Nǐ shì nǎ guó rén?", "pt": "De que país és tu? / Qual é a tua nacionalidade?" },
+                { "hanzi": "你姓什么？", "pinyin": "Nǐ xìng shénme?", "pt": "Qual é o teu apelido?" },
+                { "hanzi": "你叫什么名字？", "pinyin": "Nǐ jiào shénme míngzi?", "pt": "Como te chamas?" }
+              ]
+            },
+            {
+              "label": "D. Interrogativas com 呢 ne",
+              "desc": "Acrescentar 呢 ne a uma locução substantiva tem o significado de 'como é...?'",
+              "examples": [
+                { "hanzi": "A: 您是中国人吗？\nB: 我是中国人。您呢？", "pinyin": "Nín shì Zhōngguórén ma?\nWǒ shì Zhōngguórén. Nín ne?", "pt": "Você é chinês?\nSou chinês. E você?" },
+                { "hanzi": "A: 你叫什么名字？\nB: 我叫卡米洛。你呢？", "pinyin": "Nǐ jiào shénme míngzi?\nWǒ jiào Kāmǐluò. Nǐ ne?", "pt": "Como te chamas?\nChamo-me Camilo. E tu?" }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Mudança de tom de 不 bù",
+          "chineseTitle": "不的变调",
+          "content": "不 bù é geralmente pronunciado em 4.º tom. Quando colocado antes de outra sílaba de 4.º tom, 不 muda-se para o 2.º tom.",
+          "pattern": "不 + 4.º tom → bú + 4.º tom",
+          "examples": [
+            { "affirmative": "不 + 1.º tom → bù", "negative": "不说汉语 bù shuō Hànyǔ" },
+            { "affirmative": "不 + 2.º tom → bù", "negative": "不白 bù bái" },
+            { "affirmative": "不 + 3.º tom → bù", "negative": "不好 bù hǎo" },
+            { "affirmative": "不 + 4.º tom → bú", "negative": "不是 bú shì" }
+          ]
+        }
+      ],
+      "exercises": [
+        {
+          "type": "fill",
+          "title": "Complete com 是, 不是, 也是 ou 都是",
+          "items": [
+            { "question": "我___葡萄牙人，我___中国人。", "answer": "不是 / 是" },
+            { "question": "他___学生，她___学生。他们___学生。", "answer": "是 / 也是 / 都是" },
+            { "question": "你___老师吗？", "answer": "是" }
+          ]
+        },
+        {
+          "type": "transform",
+          "title": "Transforme em interrogativa com 吗",
+          "items": [
+            { "question": "他是中国人。", "answer": "他是中国人吗？" },
+            { "question": "你们都说汉语。", "answer": "你们都说汉语吗？" },
+            { "question": "她也是学生。", "answer": "她也是学生吗？" }
+          ]
+        },
+        {
+          "type": "translate",
+          "title": "Traduza para chinês",
+          "items": [
+            { "question": "Eu não sou português, sou chinês.", "answer": "我不是葡萄牙人，我是中国人。" },
+            { "question": "Como te chamas?", "answer": "你叫什么名字？" },
+            { "question": "Você é professora ou não?", "answer": "您是不是老师？" },
+            { "question": "Eles são todos estudantes.", "answer": "他们都是学生。" }
+          ]
+        },
+        {
+          "type": "match",
+          "title": "Liga o pronome ao equivalente em português",
+          "pairs": [
+            { "a": "我", "b": "eu" },
+            { "a": "你", "b": "tu / você" },
+            { "a": "他", "b": "ele" },
+            { "a": "她", "b": "ela" },
+            { "a": "我们", "b": "nós" },
+            { "a": "你们", "b": "vocês" },
+            { "a": "他们", "b": "eles" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "licao2",
+      "number": "Lição 2",
+      "title": "Muito prazer em conhecê-lo",
+      "chineseTitle": "认识你很高兴",
+      "color": "#1b4332",
+      "audio": {
+        "student": "/audio/licao2.mp3",
+        "exercises": "/audio/ex-licao2.mp3"
+      },
+      "vocabulary": [
+        { "num": 1, "hanzi": "认识", "pinyin": "rènshi", "type": "v.", "pt": "conhecer (uma pessoa), saber" },
+        { "num": 2, "hanzi": "高兴", "pinyin": "gāoxìng", "type": "adj.", "pt": "alegre, feliz, contente" },
+        { "num": 3, "hanzi": "进出口", "pinyin": "jìnchūkǒu", "type": "n.", "pt": "importação e exportação" },
+        { "num": 4, "hanzi": "公司", "pinyin": "gōngsī", "type": "n.", "pt": "empresa, companhia" },
+        { "num": 5, "hanzi": "工作", "pinyin": "gōngzuò", "type": "v./n.", "pt": "trabalhar; trabalho" },
+        { "num": 6, "hanzi": "大学", "pinyin": "dàxué", "type": "n.", "pt": "universidade" },
+        { "num": 7, "hanzi": "在", "pinyin": "zài", "type": "prep./v.", "pt": "em, estar em (localização)" },
+        { "num": 8, "hanzi": "里", "pinyin": "lǐ", "type": "p.d.l.", "pt": "dentro, interior" },
+        { "num": 9, "hanzi": "学", "pinyin": "xué", "type": "v.", "pt": "estudar, aprender" },
+        { "num": 10, "hanzi": "电话", "pinyin": "diànhuà", "type": "n.", "pt": "telefone" },
+        { "num": 11, "hanzi": "号码", "pinyin": "hàomǎ", "type": "n.", "pt": "número" },
+        { "num": 12, "hanzi": "可以", "pinyin": "kěyǐ", "type": "v.opt.", "pt": "poder, ser possível / permitido" },
+        { "num": 13, "hanzi": "打", "pinyin": "dǎ", "type": "v.", "pt": "ligar (telefonar), bater" },
+        { "num": 14, "hanzi": "给", "pinyin": "gěi", "type": "prep./v.", "pt": "para, a; dar" },
+        { "num": 15, "hanzi": "发", "pinyin": "fā", "type": "v.", "pt": "enviar, mandar" },
+        { "num": 16, "hanzi": "电子邮件", "pinyin": "diànzǐ yóujiàn", "type": "n.", "pt": "e-mail" },
+        { "num": 17, "hanzi": "朋友", "pinyin": "péngyou", "type": "n.", "pt": "amigo(a)" },
+        { "num": 18, "hanzi": "这", "pinyin": "zhè", "type": "pron.", "pt": "este, esta, isto" },
+        { "num": 19, "hanzi": "请", "pinyin": "qǐng", "type": "v.", "pt": "convidar; por favor" },
+        { "num": 20, "hanzi": "进", "pinyin": "jìn", "type": "v.", "pt": "entrar" },
+        { "num": 21, "hanzi": "坐", "pinyin": "zuò", "type": "v.", "pt": "sentar(-se)" },
+        { "num": 22, "hanzi": "喝", "pinyin": "hē", "type": "v.", "pt": "beber" },
+        { "num": 23, "hanzi": "行", "pinyin": "xíng", "type": "v.", "pt": "ir; estar bem, OK" },
+        { "num": 24, "hanzi": "很", "pinyin": "hěn", "type": "adv.", "pt": "muito (com adjectivos)" }
+      ],
+      "supplementaryVocabulary": [
+        { "hanzi": "工厂", "pinyin": "gōngchǎng", "pt": "fábrica" },
+        { "hanzi": "苹果", "pinyin": "píngguǒ", "pt": "maçã" }
+      ],
+      "referenceVocabulary": [
+        { "num": 1, "hanzi": "中学", "pinyin": "zhōngxué", "type": "n.", "pt": "escola secundária" },
+        { "num": 2, "hanzi": "小学", "pinyin": "xiǎoxué", "type": "n.", "pt": "escola primária" },
+        { "num": 3, "hanzi": "电脑", "pinyin": "diànnǎo", "type": "n.", "pt": "computador" },
+        { "num": 4, "hanzi": "饮料", "pinyin": "yǐnliào", "type": "n.", "pt": "bebida" },
+        { "num": 5, "hanzi": "水", "pinyin": "shuǐ", "type": "n.", "pt": "água" },
+        { "num": 6, "hanzi": "橙汁", "pinyin": "chéngzhī", "type": "n.", "pt": "sumo de laranja" },
+        { "num": 7, "hanzi": "可口可乐", "pinyin": "kěkǒukělè", "type": "n.", "pt": "coca-cola" },
+        { "num": 8, "hanzi": "咖啡", "pinyin": "kāfēi", "type": "n.", "pt": "café" },
+        { "num": 9, "hanzi": "亚洲", "pinyin": "Yàzhōu", "type": "n.", "pt": "Ásia" },
+        { "num": 10, "hanzi": "欧洲", "pinyin": "Ōuzhōu", "type": "n.", "pt": "Europa" },
+        { "num": 11, "hanzi": "美洲", "pinyin": "Měizhōu", "type": "n.", "pt": "América" },
+        { "num": 12, "hanzi": "大洋洲", "pinyin": "Dàyángzhōu", "type": "n.", "pt": "Oceânia" },
+        { "num": 13, "hanzi": "非洲", "pinyin": "Fēizhōu", "type": "n.", "pt": "África" },
+        { "num": 14, "hanzi": "西方", "pinyin": "Xīfāng", "type": "p.d.l.", "pt": "Ocidente" },
+        { "num": 15, "hanzi": "东方", "pinyin": "Dōngfāng", "type": "p.d.l.", "pt": "Oriente" }
+      ],
+      "texts": [
+        {
+          "number": "1",
+          "context": "Miguel é empregado de uma companhia portuguesa de joint-venture. Ele encontra Bai Xiaohong no avião.",
+          "lines": [
+            { "speaker": "米格尔", "pinyin": "Nǐ hǎo！Nǐ shì Zhōngguórén ma？", "hanzi": "你好！你是中国人吗？", "pt": "Olá! És chinesa?" },
+            { "speaker": "白小虹", "pinyin": "Shì. Nǐ ne？", "hanzi": "是。你呢？", "pt": "Sou. E tu?" },
+            { "speaker": "米格尔", "pinyin": "Wǒ shì Pútáoyárén. Wǒ zài yījiā Zhōngguó jìnchūkǒu gōngsī gōngzuò.", "hanzi": "我是葡萄牙人。我在一家中国进出口公司工作。", "pt": "Sou português. Trabalho numa companhia portuguesa de importação e exportação." },
+            { "speaker": "白小虹", "pinyin": "Wǒ zài Lǐsīběn Dàxué lǐ xué Hànyǔ.", "hanzi": "我在里斯本大学里学汉语。", "pt": "Estudo chinês na Universidade de Lisboa." },
+            { "speaker": "米格尔", "pinyin": "Kěyǐ gěi nǐ dǎ diànhuà ma？Wǒ de diànhuà hàomǎ shì 215 70188.", "hanzi": "可以给你打电话吗？我的电话号码是215 70188。", "pt": "Posso ligar-te? O meu número de telefone é 215 70188." },
+            { "speaker": "白小虹", "pinyin": "Kěyǐ. Wǒ de diànhuà hàomǎ shì 215 701388.", "hanzi": "可以。我的电话号码是215 701388。", "pt": "Podes. O meu número de telefone é 215 701388." },
+            { "speaker": "米格尔", "pinyin": "Kě (yǐ) gěi nǐ fā diànzǐ yóujiàn ma？", "hanzi": "可（以）给你发电子邮件吗？", "pt": "Posso enviar-te um e-mail?" },
+            { "speaker": "白小虹", "pinyin": "Kěyǐ. Nǐ yě kěyǐ gěi wǒ fā diànzǐ yóujiàn.", "hanzi": "可以。你也可以给我发电子邮件。", "pt": "Podes. Também me podes enviar um e-mail." }
+          ]
+        },
+        {
+          "number": "2",
+          "context": "Camilo e a sua namorada Zhang Yuanyuan são convidados para visitar a casa de Ding Hansheng.",
+          "lines": [
+            { "speaker": "卡米洛", "pinyin": "Zhè shì wǒ de nǚ péngyou, Zhāng Yuányuan.", "hanzi": "这是我的女朋友，张圆圆。", "pt": "Esta é a minha namorada, Zhang Yuanyuan." },
+            { "speaker": "丁汉生", "pinyin": "Nín hǎo！Qǐng jìn！", "hanzi": "你好！请进！", "pt": "Olá! Entre, por favor!" },
+            { "speaker": "张圆圆", "pinyin": "Nǐ hǎo. Xièxie.", "hanzi": "你好。谢谢。", "pt": "Olá. Obrigada." },
+            { "speaker": "丁汉生", "pinyin": "Qǐng zuò!", "hanzi": "请坐！", "pt": "Sente-se, por favor!" },
+            { "speaker": "卡米洛", "pinyin": "Xièxie！", "hanzi": "谢谢！", "pt": "Obrigado!" },
+            { "speaker": "丁汉生", "pinyin": "Qǐng hē chá！", "hanzi": "请喝茶！", "pt": "Beba chá, por favor!" },
+            { "speaker": "张圆圆", "pinyin": "Nǐmen de dàxué hǎo ma？", "hanzi": "你们的大学好吗？", "pt": "A vossa universidade é boa?" },
+            { "speaker": "丁汉生", "pinyin": "Hǎo. Wǒmen de dàxué hěn dà, yě hěn piàoliang.", "hanzi": "好。我们的大学很大，也很漂亮。", "pt": "É. A nossa universidade é muito grande e também muito bonita." }
+          ]
+        }
+      ],
+      "grammar": [
+        {
+          "title": "Preposição 在 zài (localização)",
+          "chineseTitle": "介词 zài",
+          "content": "在 é uma preposição de localização. A locução prepositiva é geralmente colocada antes / à esquerda do verbo.",
+          "pattern": "在 + lugar + verbo",
+          "examples": [
+            { "affirmative": "我在进出口公司工作。Wǒ zài jìnchūkǒu gōngsī gōngzuò.", "pt_aff": "Trabalho numa companhia de importação e exportação." },
+            { "affirmative": "我在里斯本大学里学汉语。Wǒ zài Lǐsīběn Dàxué lǐ xué Hànyǔ.", "pt_aff": "Estudo chinês na Universidade de Lisboa." }
+          ]
+        },
+        {
+          "title": "Números de telefone",
+          "chineseTitle": "电话号码",
+          "content": "O número de telefone pode ser lido por cada algarismo. Para não confundir a pronúncia entre '1' e '7', '1' pode ser lido como 'yāo'.",
+          "examples": [
+            { "affirmative": "我的电话号码是21570188。", "pt_aff": "O meu número de telefone é 21570188." }
+          ]
+        },
+        {
+          "title": "Frase simples 2: sujeito + adjectivo",
+          "chineseTitle": "简单句型2：主语 + 形容词",
+          "content": "Em chinês, o adjectivo tem a função semelhante à do verbo, e pode ser directamente colocado a seguir ao sujeito como predicado, sem usar o verbo de ligação 是.",
+          "pattern": "Sujeito + (很) + Adjectivo",
+          "examples": [
+            { "affirmative": "我很高兴。Wǒ hěn gāoxìng.", "pt_aff": "Eu estou muito feliz." },
+            { "affirmative": "我们的大学很大，也很漂亮。Wǒmen de dàxué hěn dà, yě hěn piàoliang.", "pt_aff": "A nossa universidade é muito grande e também muito bonita." },
+            { "affirmative": "我的工作不好。Wǒ de gōngzuò bù hǎo.", "pt_aff": "O meu trabalho não é bom." }
+          ],
+          "note": "Neste tipo de frases, não se pode colocar 是 antes de adjectivos predicativos. Usam-se frequentemente '很' e outros advérbios antes de adjectivos predicativos em frases declarativas."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "fill",
+          "title": "Complete com 在, 是, 可以 ou 给",
+          "items": [
+            { "question": "我___里斯本大学里学汉语。", "answer": "在" },
+            { "question": "你___打电话___我吗？", "answer": "可以 / 给" },
+            { "question": "这___我的朋友。", "answer": "是" }
+          ]
+        },
+        {
+          "type": "translate",
+          "title": "Traduza para chinês",
+          "items": [
+            { "question": "Muito prazer em conhecê-lo.", "answer": "认识你很高兴。" },
+            { "question": "Eu trabalho numa empresa.", "answer": "我在一家公司工作。" },
+            { "question": "A nossa universidade é muito boa.", "answer": "我们的大学很好。" },
+            { "question": "Podes enviar-me um e-mail?", "answer": "你可以给我发电子邮件吗？" }
+          ]
+        },
+        {
+          "type": "match",
+          "title": "Liga o vocabulário ao significado",
+          "pairs": [
+            { "a": "朋友", "b": "amigo" },
+            { "a": "电话", "b": "telefone" },
+            { "a": "大学", "b": "universidade" },
+            { "a": "工作", "b": "trabalho" },
+            { "a": "高兴", "b": "feliz" }
+          ]
+        },
+        {
+          "type": "fill",
+          "title": "Complete com 很, 也 ou 都",
+          "items": [
+            { "question": "我们的大学___大，___漂亮。", "answer": "很 / 也" },
+            { "question": "他___高兴，她___高兴。他们___高兴。", "answer": "很 / 也很 / 都很" }
+          ]
+        }
+      ]
+    }
+  ]
+}

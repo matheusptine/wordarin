@@ -62,10 +62,10 @@ const Toolbar = ({ editor, savedSelection, onPrint, onTxtExport, onPlay, isPlayi
              style={{ width: '24px', height: '28px', padding: 0, border: 'none', cursor: 'pointer', background: 'none' }}
           />
         </div>
-        <button 
-           className={`toolbar-button ${showPinyin ? 'demo-active' : ''}`} 
+        <button
+           className={`toolbar-button ${showPinyin ? 'demo-active' : ''}`}
            onMouseDown={(e) => { e.preventDefault(); onTogglePinyin(); }}
-           title="Toggle Pinyin Visibility"
+           title="Mostrar/ocultar pinyin"
            style={{ marginLeft: '12px' }}
         >
           <Languages size={18} />
