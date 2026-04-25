@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { pinyin as getPinyin } from 'pinyin-pro';
+import FillBlanks from './FillBlanks';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DATA
@@ -590,7 +591,10 @@ function ConfigPanel({ config, onChange }) {
 // MAIN
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function Exercises() {
+export default function Exercises({ showPinyin, showHanzi }) {
+  // mode: 'vocab' = vocabulary/sentence drills | 'fill' = FillBlanks text exercise
+  const [mode, setMode] = useState('vocab');
+
   const [config, setConfigState] = useState(() => {
     const c = loadConfig();
     return { ...c, enabledTypes: new Set(c.enabledTypes) };
@@ -659,6 +663,24 @@ export default function Exercises() {
     <div className="exercises-page">
       {/* Sidebar */}
       <div className="exercises-sidebar">
+        {/* Mode switcher */}
+        <div className="ex-mode-group">
+          <button
+            className={`ex-mode-btn ${mode === 'vocab' ? 'active' : ''}`}
+            onClick={() => setMode('vocab')}
+          >
+            Vocabulário & Frases
+          </button>
+          <button
+            className={`ex-mode-btn ${mode === 'fill' ? 'active' : ''}`}
+            onClick={() => setMode('fill')}
+          >
+            ✦ Complete os Textos
+          </button>
+        </div>
+
+        {mode === 'vocab' && (
+        <>
         {/* Config toggle */}
         <button className={`ex-config-toggle ${showConfig ? 'active' : ''}`} onClick={() => setShowConfig(v => !v)}>
           ⚙ Configurar sessão
@@ -722,11 +744,14 @@ export default function Exercises() {
             )}
           </>
         )}
+        </>) /* end mode === 'vocab' */}
       </div>
 
       {/* Main area */}
       <div className="exercises-main">
-        {session?.done ? (
+        {mode === 'fill' ? (
+          <FillBlanks showPinyin={showPinyin} showHanzi={showHanzi} />
+        ) : session?.done ? (
           <SessionSummary
             score={session.score.correct}
             total={session.score.total}
