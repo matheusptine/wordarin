@@ -6,7 +6,7 @@ const HANZI_KEY = 'Chinês (汉字)';
 const PINYIN_KEY = 'Pinyin';
 const PT_KEY = 'Português';
 
-const Flashcards = ({ showPinyin = true, speechRate = 1.0 }) => {
+const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0 }) => {
   const [decks, setDecks] = useState([]);
   const [deckIdx, setDeckIdx] = useState(0);
   const [cardIdx, setCardIdx] = useState(0);
@@ -104,21 +104,29 @@ const Flashcards = ({ showPinyin = true, speechRate = 1.0 }) => {
   const hanziWithRuby = useMemo(() => {
     if (!currentCard) return null;
     const text = currentCard[HANZI_KEY] || '';
-    return Array.from(text).map((ch, i) => {
-      if (/[\u4E00-\u9FA5]/.test(ch)) {
-        const py = pinyin(ch, { type: 'array' })[0] || '';
-        return (
-          <ruby key={i} className="pinyin-ruby">
-            {ch}
-            <rt className="pinyin-rt">{py}</rt>
-          </ruby>
-        );
-      }
-      return <span key={i}>{ch}</span>;
-    });
+    return (
+      <span className="flashcard-hanzi-inner">
+        {Array.from(text).map((ch, i) => {
+          if (/[\u4E00-\u9FA5]/.test(ch)) {
+            const py = pinyin(ch, { type: 'array' })[0] || '';
+            return (
+              <span key={i} className="fc-char">
+                <span className="fc-pinyin">{py}</span>
+                <span className="fc-hz">{ch}</span>
+              </span>
+            );
+          }
+          return <span key={i} className="fc-punct">{ch}</span>;
+        })}
+      </span>
+    );
   }, [currentCard]);
 
-  const panelClass = `flashcards-panel ${!showPinyin ? 'hide-pinyin' : ''}`;
+  const panelClass = [
+    'flashcards-panel',
+    !showPinyin ? 'hide-pinyin' : '',
+    !showHanzi  ? 'hide-hanzi'  : '',
+  ].filter(Boolean).join(' ');
 
   if (!decks.length) {
     return (
@@ -159,33 +167,32 @@ const Flashcards = ({ showPinyin = true, speechRate = 1.0 }) => {
       </div>
 
       <div className="flashcards-controls">
-        <button className="flashcards-btn" onClick={handlePrev} title="Previous">
-          <ChevronLeft size={16} />
+        <button className="flashcards-btn" onClick={handlePrev} title="Anterior">
+          ‹
         </button>
         <button
           className={`flashcards-btn ${isPlaying ? 'active' : ''}`}
           onClick={handlePlay}
-          title={isPlaying ? 'Stop' : 'Play'}
+          title={isPlaying ? 'Parar' : 'Ouvir'}
         >
-          {isPlaying ? <Square size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+          {isPlaying ? '■' : '▶'}
         </button>
         <button
           className={`flashcards-btn flashcards-reveal ${revealed ? 'active' : ''}`}
           onClick={() => setRevealed(r => !r)}
-          title="Reveal answer"
+          title="Ver resposta"
         >
-          {revealed ? <EyeOff size={14} /> : <Eye size={14} />}
-          <span>{revealed ? 'Hide' : 'Reveal'}</span>
+          {revealed ? 'Ocultar' : 'Revelar'}
         </button>
         <button
           className={`flashcards-btn ${shuffled ? 'active' : ''}`}
           onClick={() => setShuffled(s => !s)}
-          title="Shuffle"
+          title="Baralhar"
         >
-          <Shuffle size={14} />
+          ⇄
         </button>
-        <button className="flashcards-btn" onClick={handleNext} title="Next">
-          <ChevronRight size={16} />
+        <button className="flashcards-btn" onClick={handleNext} title="Próximo">
+          ›
         </button>
       </div>
     </div>

@@ -6,7 +6,9 @@
       "Bash(python -c ' *)",
       "Bash(python -X utf8 -c ' *)",
       "Read(//tmp/**)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx vite *)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
