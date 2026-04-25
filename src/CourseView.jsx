@@ -597,7 +597,7 @@ function PhoneticsSection({ phonetics, subsections }) {
 }
 
 // ── Characters section with stroke order ─────────────────────────────────────
-function CharactersSection({ characters, strokes }) {
+function CharactersSection({ characters, strokes, onHanziClick }) {
   return (
     <div className="course-section">
       <h3 className="section-title">
@@ -621,9 +621,17 @@ function CharactersSection({ characters, strokes }) {
           <div
             key={i}
             className="char-card"
-            onClick={() => speakChinese(c.hanzi)}
+            title="Clique para praticar traços"
+            onClick={() => onHanziClick(c.hanzi)}
           >
-            <HanziRuby text={c.hanzi} className="char-hanzi" />
+            <div
+              className="char-hanzi-wrap"
+              onClick={(e) => { e.stopPropagation(); speakChinese(c.hanzi); }}
+              title="Clique no hanzi para ouvir"
+            >
+              <HanziRuby text={c.hanzi} className="char-hanzi" />
+            </div>
+            <div className="char-pinyin">{c.pinyin}</div>
             <div className="char-meaning">{c.meaning}</div>
             {c.strokes && <div className="char-strokes">{c.strokes} traço{c.strokes !== 1 ? 's' : ''}</div>}
           </div>
@@ -633,9 +641,54 @@ function CharactersSection({ characters, strokes }) {
   );
 }
 
+// ── Stroke practice side panel (chars section) ───────────────────────────────
+function StrokePanel({ chars, label, onClose }) {
+  const [idx, setIdx] = useState(0);
+  const char = chars[Math.min(idx, chars.length - 1)];
+
+  return (
+    <div className="stroke-side-panel">
+      <div className="stroke-side-header">
+        <span className="stroke-side-label">{label}</span>
+        {chars.length > 1 && (
+          <div className="stroke-side-nav">
+            {chars.map((c, i) => (
+              <button
+                key={i}
+                className={`stroke-side-nav-btn ${i === idx ? 'active' : ''}`}
+                onClick={() => setIdx(i)}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+        <button className="stroke-side-close" onClick={onClose} title="Fechar">✕</button>
+      </div>
+      <div className="stroke-side-body">
+        <StrokeOrder key={char} char={char} size={300} />
+      </div>
+    </div>
+  );
+}
+
 // ── Main CourseView ──────────────────────────────────────────────────────────
 export default function CourseView({ lesson, showPinyin = true, showHanzi = true }) {
   const [selectedVocabItem, setSelectedVocabItem] = useState(null);
+  const [panelChars, setPanelChars] = useState(null);
+
+  const openStrokePanel = (hanziStr) => {
+    const chars = [...(hanziStr || '')].filter(c => /[\u4e00-\u9fa5]/.test(c));
+    if (chars.length) {
+      setSelectedVocabItem(null); // close vocab whiteboard if open
+      setPanelChars({ chars, label: hanziStr });
+    }
+  };
+
+  const openVocabWhiteboard = (item) => {
+    setPanelChars(null); // close stroke panel if open
+    setSelectedVocabItem(item);
+  };
 
   if (!lesson) {
     return (
@@ -650,6 +703,7 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
 
   const viewClass = [
     'course-view',
+    (panelChars || selectedVocabItem) ? 'has-panel' : '',
     !showPinyin ? 'hide-pinyin' : '',
     !showHanzi  ? 'hide-hanzi'  : '',
   ].filter(Boolean).join(' ');
@@ -689,7 +743,11 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
 
           {lesson.characters && (
             <div id="section-characters">
-              <CharactersSection characters={lesson.characters} strokes={lesson.strokes} />
+              <CharactersSection
+                characters={lesson.characters}
+                strokes={lesson.strokes}
+                onHanziClick={openStrokePanel}
+              />
             </div>
           )}
 
@@ -700,7 +758,7 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
                   items={lesson.vocabulary}
                   title="词汇 Vocabulário"
                   selectedItem={selectedVocabItem}
-                  onSelect={setSelectedVocabItem}
+                  onSelect={openVocabWhiteboard}
                 />
               )}
               {lesson.supplementaryVocabulary && (
@@ -708,7 +766,7 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
                   items={lesson.supplementaryVocabulary}
                   title="补充词汇 Vocabulário suplementar"
                   selectedItem={selectedVocabItem}
-                  onSelect={setSelectedVocabItem}
+                  onSelect={openVocabWhiteboard}
                 />
               )}
               {lesson.referenceVocabulary && (
@@ -716,7 +774,7 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
                   items={lesson.referenceVocabulary}
                   title="参考词汇 Vocabulário de referência"
                   selectedItem={selectedVocabItem}
-                  onSelect={setSelectedVocabItem}
+                  onSelect={openVocabWhiteboard}
                 />
               )}
             </div>
@@ -746,7 +804,15 @@ export default function CourseView({ lesson, showPinyin = true, showHanzi = true
         </div>
       </div>
 
-      {selectedVocabItem && (
+      {panelChars && (
+        <StrokePanel
+          chars={panelChars.chars}
+          label={panelChars.label}
+          onClose={() => setPanelChars(null)}
+        />
+      )}
+
+      {selectedVocabItem && !panelChars && (
         <div className="course-whiteboard-panel">
           <VocabWhiteboard item={selectedVocabItem} onClose={() => setSelectedVocabItem(null)} />
         </div>

@@ -20,6 +20,7 @@ function scrollToSection(key) {
 }
 
 export default function LessonNav({ lessons, activeId, onSelect }) {
+  const isExtraActive = activeId === 'extra';
   return (
     <nav className="lesson-nav">
       <div className="lesson-nav-header">
@@ -62,6 +63,24 @@ export default function LessonNav({ lessons, activeId, onSelect }) {
             </li>
           );
         })}
+      </ul>
+
+      {/* Extra section separator + FillBlanks entry */}
+      <div className="lesson-nav-extra-sep" />
+      <ul className="lesson-nav-list">
+        <li>
+          <button
+            className={`lesson-nav-item lesson-nav-extra ${isExtraActive ? 'active' : ''}`}
+            onClick={() => onSelect('extra')}
+            style={{ '--lesson-color': '#7c3aed' }}
+          >
+            <span className="lesson-nav-number">✦</span>
+            <div className="lesson-nav-text">
+              <span className="lesson-nav-title">Complete os Textos</span>
+              <span className="lesson-nav-chinese">练习</span>
+            </div>
+          </button>
+        </li>
       </ul>
     </nav>
   );

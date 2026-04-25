@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import WordarinEditor from './Editor';
 import Toolbar from './Toolbar';
 import Flashcards from './Flashcards';
+import FillBlanks from './FillBlanks';
 import CourseView from './CourseView';
 import LessonNav from './LessonNav';
 import { useIME } from './IMEProvider';
@@ -243,7 +244,11 @@ export default function App() {
             <div className="lesson-nav loading">A carregar...</div>
           )}
           <main className="curso-main">
-            <CourseView lesson={activeLesson} showPinyin={showPinyin} showHanzi={showHanzi} />
+            {activeLessonId === 'extra' ? (
+              <FillBlanks showPinyin={showPinyin} showHanzi={showHanzi} />
+            ) : (
+              <CourseView lesson={activeLesson} showPinyin={showPinyin} showHanzi={showHanzi} />
+            )}
           </main>
         </div>
       )}
@@ -298,6 +303,7 @@ export default function App() {
           <Flashcards showPinyin={showPinyin} showHanzi={showHanzi} speechRate={speechRate} fullpage />
         </div>
       )}
+
     </div>
   );
 }

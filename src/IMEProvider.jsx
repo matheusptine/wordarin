@@ -573,7 +573,16 @@ function insertIntoFocused(text) {
     el.dispatchEvent(new Event('change', { bubbles: true }));
   } else {
     // contentEditable / Slate editor
-    document.execCommand('insertText', false, text);
+    const event = new InputEvent('beforeinput', {
+      inputType: 'insertText',
+      data: text,
+      bubbles: true,
+      cancelable: true,
+    });
+    el.dispatchEvent(event);
+    if (!event.defaultPrevented) {
+      document.execCommand('insertText', false, text);
+    }
   }
 }
 
@@ -595,7 +604,15 @@ function deleteLastInFocused() {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
   } else {
-    document.execCommand('delete', false);
+    const event = new InputEvent('beforeinput', {
+      inputType: 'deleteContentBackward',
+      bubbles: true,
+      cancelable: true,
+    });
+    el.dispatchEvent(event);
+    if (!event.defaultPrevented) {
+      document.execCommand('delete', false);
+    }
   }
 }
 
@@ -773,7 +790,17 @@ function IMEPopup({ buffer, candidates, pos, onSelect, onClear }) {
       {candidates.length > 0 ? (
         <div className="ime-candidates">
           {candidates.map((c, i) => (
-            <button key={i} className="ime-cand" onClick={() => onSelect(c)}>
+            <button
+              key={i}
+              className="ime-cand"
+              // onMouseDown preventDefault keeps focus on the Slate editor so
+              // insertIntoFocused dispatches beforeinput on the correct element.
+              // Without this, mousedown steals focus to the button and the
+              // char insertion falls back to execCommand, bypassing Slate state
+              // — so decorate never runs and pinyin never appears on new chars.
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onSelect(c)}
+            >
               <span className="ime-cand-num">{i + 1}</span>
               <span className="ime-cand-hz">{c}</span>
               <span className="ime-cand-py">{pinyin(c, { type: 'string' })}</span>
