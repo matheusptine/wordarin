@@ -1,11 +1,10 @@
-import React, { useMemo, useCallback } from 'react';
-import { createEditor, Node, Text } from 'slate';
-import { Slate, Editable, withReact } from 'slate-react';
+import { useCallback, useEffect } from 'react';
+import { Text, Transforms } from 'slate';
+import { Slate, Editable } from 'slate-react';
 import { pinyin } from 'pinyin-pro';
+import { useIME } from './IMEProvider';
 
-const isChineseCharacter = (char) => {
-  return /[\u4E00-\u9FA5]/.test(char);
-};
+const isChineseCharacter = (char) => /[一-龥]/.test(char);
 
 // Cache pinyin results to avoid recomputation and keep decorate deterministic.
 const pinyinCache = new Map();
@@ -95,8 +94,22 @@ const Element = ({ attributes, children, element }) => {
 };
 
 const WordarinEditor = ({ editor, value, onChange, showPinyin, fontSize = 20 }) => {
-  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
+  const renderLeaf    = useCallback((props) => <Leaf {...props} />, []);
   const renderElement = useCallback((props) => <Element {...props} />, []);
+  const ime = useIME();
+
+  // Register Slate-native insert so confirmed Chinese lands at the cursor.
+  useEffect(() => {
+    if (!ime?.registerInsert) return;
+    ime.registerInsert((text) => {
+      Transforms.insertText(editor, text);
+      // Restore focus synchronously so Backspace/Delete work immediately after
+      // confirmation — the editor must be activeElement before Slate's next render.
+      const el = document.querySelector('[data-slate-editor="true"]');
+      if (el && document.activeElement !== el) el.focus({ preventScroll: true });
+    });
+    return () => ime.registerInsert(null);
+  }, [editor, ime]);
 
   return (
     <div className="editor-page print-container">

@@ -5,6 +5,8 @@ import Flashcards from './Flashcards';
 import FillBlanks from './FillBlanks';
 import CourseView from './CourseView';
 import LessonNav from './LessonNav';
+import Exercises from './Exercises';
+import Dictionary from './Dictionary';
 import { useIME } from './IMEProvider';
 import { createEditor, Node, Editor } from 'slate';
 import { withReact } from 'slate-react';
@@ -17,8 +19,8 @@ const initialValue = [
   { type: 'paragraph', children: [{ text: '开始在这里输入中文！' }] },
 ];
 
-const VIEWS = ['curso', 'editor', 'flashcards'];
-const VIEW_LABELS = { curso: 'Curso', editor: 'Editor', flashcards: 'Flashcards' };
+const VIEWS = ['curso', 'editor', 'exercicios', 'dicionario', 'flashcards'];
+const VIEW_LABELS = { curso: 'Curso', editor: 'Editor', exercicios: 'Exercícios', dicionario: 'Dicionário', flashcards: 'Flashcards' };
 
 export default function App() {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
@@ -228,6 +230,13 @@ export default function App() {
           >
             IME
           </button>
+          <button
+            className={`header-toggle-btn ${ime?.ttsEnabled ? 'active' : ''}`}
+            onClick={() => ime?.toggleTts?.()}
+            title={ime?.ttsEnabled ? 'Desativar leitura em voz alta ao confirmar caractere' : 'Ativar leitura em voz alta ao confirmar caractere (fala o caractere em mandarim)'}
+          >
+            Voz
+          </button>
         </div>
       </header>
 
@@ -296,6 +305,12 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Exercises view */}
+      {view === 'exercicios' && <Exercises />}
+
+      {/* Dictionary view */}
+      {view === 'dicionario' && <Dictionary />}
 
       {/* Flashcards view */}
       {view === 'flashcards' && (

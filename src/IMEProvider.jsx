@@ -414,6 +414,23 @@ const WORDS = {
   'faguo':['法国'],'deguo':['德国'],'riben':['日本'],
   'hanguo':['韩国'],'xibanya':['西班牙'],'yidali':['意大利'],
   'putouyaren':['葡萄牙人'],'putaoya':['葡萄牙'],
+  // South America & common nationalities
+  'baxi':['巴西'],'baxiren':['巴西人'],
+  'aerjiantina':['阿根廷'],'aerjiantinaren':['阿根廷人'],
+  'moxige':['墨西哥'],'moxigeren':['墨西哥人'],
+  'zhili':['智利'],'zhiliren':['智利人'],
+  'bilu':['秘鲁'],'biluren':['秘鲁人'],
+  'aodaliya':['澳大利亚'],'aodaliyaren':['澳大利亚人'],
+  'jianada':['加拿大'],'jianadaren':['加拿大人'],
+  'yindu':['印度'],'ynduren':['印度人'],'induren':['印度人'],
+  'nanfei':['南非'],'nanfeiren':['南非人'],
+  'eguo':['俄国'],'eguoren':['俄国人'],
+  // Nationalities (woshi + country)
+  'woshibaxiren':['我是巴西人'],'woshizhongguoren':['我是中国人'],
+  'woshimeiguoren':['我是美国人'],'woshiputaoyaren':['我是葡萄牙人'],
+  'zhongguoren':['中国人'],'meiguoren':['美国人'],'yingguoren':['英国人'],
+  'faguoren':['法国人'],'ribennren':['日本人'],'riben':['日本'],
+  'hanguoren':['韩国人'],
   'zhongwen':['中文'],'yingwen':['英文'],'fawen':['法文'],
   'riwen':['日文'],'hanwen':['韩文'],'hanyu':['汉语'],
   'putonghua':['普通话'],'guangdonghua':['广东话'],
@@ -543,7 +560,55 @@ function getCandidates(buf) {
     }
   }
 
-  return results.slice(0, 10);
+  // 5. Maximum Forward Matching: decompose multi-syllable buffer into a combined string
+  if (results.length === 0 || (WORDS[n] === undefined && DICT[n] === undefined)) {
+    const combined = maxForwardMatch(n);
+    if (combined) add([combined]);
+  }
+
+  return results.slice(0, 20);
+}
+
+// ── IndexedDB query (main thread, read-only) ──────────────────────────────────
+const DB_NAME    = 'wordarin-cedict';
+const DB_VERSION = 2;
+const STORE      = 'entries';
+
+function openQueryDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      // Worker handles schema creation; if we arrive first, create minimal schema
+      const db = e.target.result;
+      if (db.objectStoreNames.contains(STORE)) db.deleteObjectStore(STORE);
+      const store = db.createObjectStore(STORE, { autoIncrement: true });
+      store.createIndex('pinyin', 'pinyin', { unique: false });
+      store.createIndex('hanzi',  'hanzi',  { unique: false });
+    };
+    req.onsuccess  = e => resolve(e.target.result);
+    req.onerror    = e => reject(e.target.error);
+  });
+}
+
+function queryDB(db, prefix, limit = 12) {
+  return new Promise(resolve => {
+    try {
+      const tx    = db.transaction(STORE, 'readonly');
+      const index = tx.objectStore(STORE).index('pinyin');
+      const range = IDBKeyRange.bound(prefix, prefix + '￿');
+      const seen  = new Set();
+      const out   = [];
+      const req   = index.openCursor(range);
+      req.onsuccess = e => {
+        const cursor = e.target.result;
+        if (!cursor || out.length >= limit) { resolve(out); return; }
+        const h = cursor.value.hanzi;
+        if (!seen.has(h)) { seen.add(h); out.push(h); }
+        cursor.continue();
+      };
+      req.onerror = () => resolve([]);
+    } catch (_) { resolve([]); }
+  });
 }
 
 // ── Context ──────────────────────────────────────────────────────────────────
@@ -586,198 +651,418 @@ function insertIntoFocused(text) {
   }
 }
 
-function deleteLastInFocused() {
-  const el = document.activeElement;
-  if (!el) return;
-  if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-    const start = el.selectionStart ?? 0;
-    const end   = el.selectionEnd   ?? 0;
-    if (start === end && start > 0) {
-      const before = el.value.slice(0, start - 1);
-      const after  = el.value.slice(end);
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        el.tagName === 'INPUT' ? window.HTMLInputElement.prototype : window.HTMLTextAreaElement.prototype,
-        'value'
-      )?.set;
-      nativeInputValueSetter?.call(el, before + after);
-      el.setSelectionRange(start - 1, start - 1);
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  } else {
-    const event = new InputEvent('beforeinput', {
-      inputType: 'deleteContentBackward',
-      bubbles: true,
-      cancelable: true,
-    });
-    el.dispatchEvent(event);
-    if (!event.defaultPrevented) {
-      document.execCommand('delete', false);
-    }
-  }
+// ── Web Speech API ────────────────────────────────────────────────────────────
+function speakChinese(text) {
+  if (!window.speechSynthesis || !text) return;
+  window.speechSynthesis.cancel();
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = 'zh-CN';
+  msg.rate = 0.85;
+  msg.pitch = 1;
+  window.speechSynthesis.speak(msg);
 }
 
 // ── Popup position ────────────────────────────────────────────────────────────
+// IMPORTANT: never mutate the Slate DOM (no insertNode / appendChild).
+// getClientRects() works for collapsed ranges in all modern browsers.
 function getCaretPos() {
   const sel = window.getSelection();
   if (sel && sel.rangeCount > 0) {
-    const r = sel.getRangeAt(0).getBoundingClientRect();
-    if (r.width > 0 || r.height > 0) {
-      return { x: r.left, y: r.bottom + 6 };
+    const range = sel.getRangeAt(0);
+    const node  = range.startContainer;
+    const el    = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    const cs    = el ? getComputedStyle(el) : null;
+    const font  = cs
+      ? { fontSize: cs.fontSize, fontFamily: cs.fontFamily, fontWeight: cs.fontWeight }
+      : { fontSize: '20px', fontFamily: 'inherit', fontWeight: 'normal' };
+
+    const rects = range.getClientRects();
+    if (rects.length > 0) {
+      const r = rects[rects.length - 1];
+      if (r.left !== 0 || r.top !== 0) {
+        return { x: r.left, y: r.bottom + 6, top: r.top, height: r.height, ...font };
+      }
+    }
+    if (el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left, y: r.bottom + 6, top: r.top, height: r.height, ...font };
     }
   }
   const el = document.activeElement;
   if (el) {
-    const r = el.getBoundingClientRect();
-    return { x: r.left, y: r.bottom + 6 };
+    const r  = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    return { x: r.left, y: r.bottom + 6, top: r.top, height: r.height,
+             fontSize: cs.fontSize, fontFamily: cs.fontFamily, fontWeight: cs.fontWeight };
   }
-  return { x: 100, y: 100 };
+  return { x: 100, y: 100, top: 80, height: 28, fontSize: '20px', fontFamily: 'inherit', fontWeight: 'normal' };
+}
+
+// ── Maximum Forward Matching ──────────────────────────────────────────────────
+// When the buffer doesn't match any single entry, try to decompose it into
+// known syllables and return a combined hanzi string as a bonus candidate.
+function maxForwardMatch(input) {
+  if (!input) return null;
+  const n = norm(input);
+  const parts = [];
+  let i = 0;
+  while (i < n.length) {
+    let matched = false;
+    // Try WORDS first (longer phrases take priority)
+    for (let len = Math.min(n.length - i, 12); len >= 2; len--) {
+      const sub = n.slice(i, i + len);
+      if (WORDS[sub]?.[0]) { parts.push(WORDS[sub][0]); i += len; matched = true; break; }
+    }
+    if (!matched) {
+      // Try single DICT syllables
+      for (let len = Math.min(n.length - i, 6); len >= 1; len--) {
+        const sub = n.slice(i, i + len);
+        if (DICT[sub]?.[0]) { parts.push(DICT[sub][0]); i += len; matched = true; break; }
+      }
+    }
+    if (!matched) return null; // can't segment — give up
+  }
+  return parts.length > 1 ? parts.join('') : null;
 }
 
 // ── IMEProvider ───────────────────────────────────────────────────────────────
 export function IMEProvider({ children }) {
-  const [active, setActive]       = useState(false);
-  const [buffer, setBuffer]       = useState('');
+  const [active, setActive]         = useState(false);
+  const [buffer, setBuffer]         = useState('');
   const [candidates, setCandidates] = useState([]);
-  const [pos, setPos]             = useState({ x: 0, y: 0 });
-  const bufRef = useRef('');
-  const activeRef = useRef(false);
+  const [pos, setPos]               = useState({ x: 0, y: 0, top: 0, height: 28, fontSize: '20px', fontFamily: 'inherit', fontWeight: 'normal' });
+  const [dbStatus, setDbStatus]     = useState({ state: 'idle' }); // idle | loading | ready | error
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const bufRef              = useRef('');
+  const activeRef           = useRef(false);
+  const isComposing         = useRef(false); // true while pinyin buffer is non-empty
+  const insertCbRef         = useRef(null);  // legacy simple insert (non-Slate inputs)
+  const adapterRef          = useRef(null);  // Slate-aware adapter { updateComposing, confirm, cancel }
+  const dbRef               = useRef(null);  // IndexedDB connection (opened after worker signals ready)
+  const queryGenRef         = useRef(0);     // incremented on each buffer change to cancel stale queries
+  const blockNextInputRef   = useRef(false); // block the beforeinput that follows an Enter/Space confirm
 
-  // Keep refs in sync
-  useEffect(() => { bufRef.current = buffer; }, [buffer]);
+  const registerInsert  = useCallback((fn)  => { insertCbRef.current = fn; }, []);
+  // Richer Slate adapter: { updateComposing(pinyin), confirm(chinese), cancel() }
+  const registerAdapter = useCallback((obj) => { adapterRef.current = obj; }, []);
+
+  // activeRef kept in sync (needed by the keydown closure)
   useEffect(() => { activeRef.current = active; }, [active]);
 
+  // ── Boot sequence ─────────────────────────────────────────────────────────
+  // 1. Load small phrase JSON (instant, keeps working while DB loads)
+  // 2. Start Web Worker → parses CC-CEDICT → populates IndexedDB
+  // 3. When worker signals ready, open a read connection for queries
   useEffect(() => {
-    if (buffer) {
-      setCandidates(getCandidates(buffer));
-    } else {
-      setCandidates([]);
-    }
+    // 1. Extended phrase JSON
+    fetch('/pinyin-phrases.json')
+      .then(r => r.json())
+      .then(data => {
+        for (const [k, v] of Object.entries(data)) {
+          // pinyin-phrases.json stores strings; WORDS expects arrays
+          WORDS[k] = Array.isArray(v) ? v : [v];
+        }
+      })
+      .catch(() => {});
+
+    // 2. Worker
+    const worker = new Worker(
+      new URL('./cedict.worker.js', import.meta.url),
+      { type: 'module' }
+    );
+    worker.onmessage = async ({ data }) => {
+      if (data.type === 'loading') {
+        setDbStatus({ state: 'loading', progress: data.progress ?? 0 });
+      } else if (data.type === 'ready') {
+        try {
+          dbRef.current = await openQueryDB();
+          setDbStatus({ state: 'ready', count: data.count });
+        } catch (e) {
+          setDbStatus({ state: 'error', message: e.message });
+        }
+        worker.terminate();
+      } else if (data.type === 'error') {
+        setDbStatus({ state: 'error', message: data.message });
+        worker.terminate();
+      }
+    };
+    worker.onerror = e => {
+      setDbStatus({ state: 'error', message: e.message });
+    };
+
+    return () => worker.terminate();
+  }, []);
+
+  // ── Candidates: immediate in-memory + async DB enrichment ─────────────────
+  useEffect(() => {
+    if (!buffer) { setCandidates([]); return; }
+
+    // Immediate in-memory results so the popup feels instant
+    const memResults = getCandidates(buffer);
+    setCandidates(memResults);
+
+    // Enrich from IndexedDB if available
+    if (!dbRef.current) return;
+    const gen = ++queryGenRef.current;
+    queryDB(dbRef.current, norm(buffer)).then(dbResults => {
+      if (queryGenRef.current !== gen) return; // buffer changed, discard
+      // Merge: preserve in-memory order at top, add new DB entries below
+      const seen    = new Set(memResults);
+      const merged  = [...memResults];
+      for (const h of dbResults) {
+        if (!seen.has(h)) { seen.add(h); merged.push(h); }
+      }
+      setCandidates(merged.slice(0, 20));
+    });
   }, [buffer]);
 
+  const toggleTts = useCallback(() => setTtsEnabled(v => !v), []);
+
   const confirmCandidate = useCallback((char) => {
-    insertIntoFocused(char);
+    if (adapterRef.current?.confirm) {
+      adapterRef.current.confirm(char);
+    } else if (insertCbRef.current) {
+      insertCbRef.current(char);
+    } else {
+      insertIntoFocused(char);
+    }
+    if (ttsEnabled) speakChinese(char);
+    bufRef.current      = '';
+    isComposing.current = false;
+    setBuffer('');
+  }, [ttsEnabled]);
+
+  const clearBuffer = useCallback(() => {
+    adapterRef.current?.cancel?.();           // Slate inline: delete composing text
+    bufRef.current      = '';
+    isComposing.current = false;
     setBuffer('');
   }, []);
 
-  const clearBuffer = useCallback(() => setBuffer(''), []);
-
-  // Global keydown handler
+  // Global keydown handler — capture phase so we run before Slate
   useEffect(() => {
+    const PASS_KEYS = new Set([
+      'ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
+      'Home','End','PageUp','PageDown','Tab',
+    ]);
+
     const handler = (e) => {
       if (!activeRef.current) return;
-
-      // Don't intercept modifier combos (Ctrl+C, etc.)
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
+      // Every new keydown starts a fresh action. If the previous confirm's beforeinput
+      // was suppressed by Chrome (because keydown.preventDefault() was called), the
+      // blockNextInputRef would have been left true. Reset it now so this key isn't blocked.
+      blockNextInputRef.current = false;
+
       const buf = bufRef.current;
+
+      // Editing keys MUST reach the editor when there is no active pinyin buffer.
+      // This early return is the authoritative gate — nothing below can accidentally
+      // intercept Backspace/Delete on committed Slate text.
+      if (!buf && (e.key === 'Backspace' || e.key === 'Delete')) return;
+
       const cands = getCandidates(buf);
+
+      // Navigation keys pass through freely when buffer is empty
+      if (PASS_KEYS.has(e.key) && !buf) return;
 
       // Number keys 1–9: pick candidate
       if (buf && /^[1-9]$/.test(e.key)) {
         const idx = parseInt(e.key, 10) - 1;
         if (cands[idx]) {
           e.preventDefault();
+          e.stopPropagation();
+          blockNextInputRef.current = true;
+          // Chrome suppresses beforeinput when keydown.preventDefault() is called,
+          // so blockNextInputRef might never be consumed — clear it as a safety net.
+          setTimeout(() => { blockNextInputRef.current = false; }, 0);
           confirmCandidate(cands[idx]);
           return;
         }
       }
 
-      // Space: confirm first candidate or insert space
+      // Space: confirm first candidate or clear buffer
       if (e.key === ' ') {
         if (buf && cands.length > 0) {
           e.preventDefault();
+          e.stopPropagation();
+          blockNextInputRef.current = true;
+          setTimeout(() => { blockNextInputRef.current = false; }, 0);
           confirmCandidate(cands[0]);
           return;
         }
         if (buf) {
-          // no match — clear buffer, insert nothing (user can retry)
           e.preventDefault();
+          e.stopPropagation();
+          adapterRef.current?.cancel?.();
+          bufRef.current = ''; isComposing.current = false;
           setBuffer('');
           return;
         }
-        return; // let space pass through
+        return; // no buffer → let space reach Slate
       }
 
-      // Enter: confirm first candidate or pass through
+      // Enter: confirm or clear
       if (e.key === 'Enter') {
         if (buf && cands.length > 0) {
           e.preventDefault();
+          e.stopPropagation();
+          blockNextInputRef.current = true;
+          setTimeout(() => { blockNextInputRef.current = false; }, 0);
           confirmCandidate(cands[0]);
           return;
         }
         if (buf) {
           e.preventDefault();
+          e.stopPropagation();
+          adapterRef.current?.cancel?.();
+          bufRef.current = ''; isComposing.current = false;
           setBuffer('');
           return;
         }
         return;
       }
 
-      // Escape: clear buffer
+      // Escape: clear buffer and cancel inline composing text
       if (e.key === 'Escape') {
-        if (buf) { e.preventDefault(); setBuffer(''); }
+        if (buf) {
+          e.preventDefault();
+          e.stopPropagation();
+          adapterRef.current?.cancel?.();
+          bufRef.current = ''; isComposing.current = false;
+          setBuffer('');
+        }
         return;
       }
 
-      // Backspace: remove last pinyin char if buffer exists
+      // Backspace: edit pinyin buffer — NEVER touch committed Slate text
       if (e.key === 'Backspace') {
-        if (buf.length > 0) {
+        if (isComposing.current) {
           e.preventDefault();
-          setBuffer(b => b.slice(0, -1));
+          e.stopPropagation();
+          const next = bufRef.current.slice(0, -1);
+          bufRef.current      = next;
+          isComposing.current = next.length > 0;
+          setBuffer(next);
+          if (next.length > 0) {
+            adapterRef.current?.updateComposing?.(next); // shrink inline text
+          } else {
+            adapterRef.current?.cancel?.();              // delete inline text entirely
+          }
           return;
         }
-        // else let backspace delete normally
-        return;
+        return; // empty buffer → let Slate handle normally
       }
 
-      // Letters → add to pinyin buffer
+      // Letters: build pinyin buffer; show inline composing text in Slate
       if (/^[a-zA-Z]$/.test(e.key)) {
         e.preventDefault();
-        const p = getCaretPos();
-        setPos(p);
-        setBuffer(b => b + e.key.toLowerCase());
+        e.stopPropagation();
+        const next = bufRef.current + e.key.toLowerCase();
+        bufRef.current      = next;
+        isComposing.current = true;
+        setPos(getCaretPos());
+        setBuffer(next);
+        adapterRef.current?.updateComposing?.(next); // insert/replace inline pinyin in editor
         return;
       }
 
-      // Punctuation / special: clear buffer and let through
+      // Punctuation/non-letter while composing: auto-confirm first candidate then let char through
       if (buf && e.key.length === 1) {
-        setBuffer('');
+        if (cands.length > 0) {
+          confirmCandidate(cands[0]);
+          // bufRef.current is now '' so beforeinput for this char will pass through to Slate
+        } else {
+          adapterRef.current?.cancel?.();
+          bufRef.current = ''; isComposing.current = false;
+          setBuffer('');
+        }
+        // No preventDefault — the punctuation should reach Slate
+      }
+    };
+
+    // Block beforeinput events from reaching Slate while we're composing,
+    // or immediately after an Enter/Space confirm (to suppress insertParagraph).
+    // IMPORTANT: e.preventDefault() alone is not enough — Slate has its own JS
+    // handleBeforeInput listener that runs regardless of defaultPrevented.
+    // We must call e.stopPropagation() to prevent the event from reaching Slate.
+    const beforeInputHandler = (e) => {
+      if (!activeRef.current) return;
+      if (bufRef.current) {
+        // Buffer still active: swallow everything — keydown handler manages input explicitly
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if (blockNextInputRef.current) {
+        blockNextInputRef.current = false;
+        e.preventDefault();
+        e.stopPropagation();
       }
     };
 
     window.addEventListener('keydown', handler, true);
-    return () => window.removeEventListener('keydown', handler, true);
+    window.addEventListener('beforeinput', beforeInputHandler, true);
+    return () => {
+      window.removeEventListener('keydown', handler, true);
+      window.removeEventListener('beforeinput', beforeInputHandler, true);
+    };
   }, [confirmCandidate]);
 
-  const toggle   = useCallback(() => { setActive(a => !a); setBuffer(''); }, []);
-  const activate = useCallback(() => { setActive(true);   setBuffer(''); }, []);
-  const deactivate = useCallback(() => { setActive(false); setBuffer(''); }, []);
+  const toggle     = useCallback(() => { setActive(a => !a); setBuffer(''); }, []);
+  const activate   = useCallback(() => { setActive(true);    setBuffer(''); }, []);
+  const deactivate = useCallback(() => { setActive(false);   setBuffer(''); }, []);
 
   return (
-    <IMEContext.Provider value={{ active, toggle, activate, deactivate, buffer, clearBuffer }}>
+    <IMEContext.Provider value={{ active, toggle, activate, deactivate, buffer, clearBuffer, registerInsert, registerAdapter, ttsEnabled, toggleTts }}>
       {children}
       {active && buffer && (
-        <IMEPopup
-          buffer={buffer}
-          candidates={candidates}
-          pos={pos}
-          onSelect={confirmCandidate}
-          onClear={clearBuffer}
-        />
+        <>
+          {/* Floating composing overlay — sits at cursor, outside Slate DOM */}
+          <span
+            className="ime-composing-overlay"
+            style={{
+              left:       pos.x,
+              top:        pos.top,
+              fontSize:   pos.fontSize,
+              fontFamily: pos.fontFamily,
+              fontWeight: pos.fontWeight,
+              lineHeight: `${pos.height}px`,
+              height:     pos.height,
+            }}
+          >
+            {buffer}
+          </span>
+          <IMEPopup
+            buffer={buffer}
+            candidates={candidates}
+            pos={pos}
+            onSelect={confirmCandidate}
+            dbStatus={dbStatus}
+          />
+        </>
       )}
     </IMEContext.Provider>
   );
 }
 
 // ── Floating popup ────────────────────────────────────────────────────────────
-function IMEPopup({ buffer, candidates, pos, onSelect, onClear }) {
+const POPUP_W = 320;
+const POPUP_H = 200; // conservative estimate
+
+function IMEPopup({ buffer, candidates, pos, onSelect, dbStatus }) {
   const ref = useRef(null);
 
-  // Keep popup on screen
+  // Clamp horizontally; flip above caret when near bottom edge
+  const fitsBelow = pos.y + POPUP_H < window.innerHeight;
+  const left = Math.min(Math.max(4, pos.x), window.innerWidth - POPUP_W - 4);
   const style = {
     position: 'fixed',
-    left: Math.min(pos.x, window.innerWidth - 320),
-    top: Math.min(pos.y, window.innerHeight - 160),
+    left,
+    ...(fitsBelow
+      ? { top: pos.y }
+      : { bottom: window.innerHeight - pos.y + 28 }), // flip above cursor
     zIndex: 9999,
   };
 
@@ -785,30 +1070,32 @@ function IMEPopup({ buffer, candidates, pos, onSelect, onClear }) {
     <div ref={ref} className="ime-popup" style={style}>
       <div className="ime-buffer">
         <span className="ime-buffer-text">{buffer}</span>
-        <span className="ime-buffer-hint">Space/Enter = confirmar · Esc = limpar</span>
+        <span className="ime-buffer-hint">
+          {candidates.length > 0 ? 'Space · Enter = confirmar 1   Esc = limpar' : 'Esc = limpar'}
+        </span>
       </div>
       {candidates.length > 0 ? (
         <div className="ime-candidates">
           {candidates.map((c, i) => (
             <button
               key={i}
-              className="ime-cand"
-              // onMouseDown preventDefault keeps focus on the Slate editor so
-              // insertIntoFocused dispatches beforeinput on the correct element.
-              // Without this, mousedown steals focus to the button and the
-              // char insertion falls back to execCommand, bypassing Slate state
-              // — so decorate never runs and pinyin never appears on new chars.
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => onSelect(c)}
+              className={`ime-cand ${i === 0 ? 'ime-cand-top' : ''}`}
+              onMouseDown={(e) => { e.preventDefault(); onSelect(c); }}
+              title={pinyin(c, { type: 'string' })}
             >
-              <span className="ime-cand-num">{i + 1}</span>
+              <span className="ime-cand-num">{i < 9 ? i + 1 : '·'}</span>
               <span className="ime-cand-hz">{c}</span>
-              <span className="ime-cand-py">{pinyin(c, { type: 'string' })}</span>
             </button>
           ))}
         </div>
       ) : (
         <div className="ime-no-cand">Sem correspondência — tente outro pinyin</div>
+      )}
+      {dbStatus.state === 'loading' && (
+        <div className="ime-db-status">
+          <div className="ime-db-bar" style={{ width: `${dbStatus.progress ?? 0}%` }} />
+          <span>Carregando dicionário... {dbStatus.progress ?? 0}%</span>
+        </div>
       )}
     </div>
   );
