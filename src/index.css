@@ -3047,6 +3047,46 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   line-height: 1.5;
 }
 
+/* ── Grouped search result: multiple readings per hanzi ──────────────────────── */
+.dict-reading-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dict-reading-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Container for polyphonic characters — stack readings with dividers */
+.dict-multi-readings {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dict-reading-group {
+  padding: 6px 0;
+}
+
+.dict-reading-group-alt {
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px dashed var(--border);
+  /* Subtle left accent to mark alternate reading */
+  padding-left: 10px;
+  border-left: 3px solid var(--green-200);
+  margin-left: -2px;
+}
+
+/* Slight visual lift for polyphonic entries */
+.dict-entry-polyphonic {
+  background: linear-gradient(to right, var(--green-50) 0px, transparent 8px);
+}
+
 /* ── Dictionary: search mode toggle ─────────────────────────────────────────── */
 .dict-mode-row {
   display: flex;

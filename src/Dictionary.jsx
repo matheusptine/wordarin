@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import DrawingSearch from './DrawingSearch';
 import StrokeOrderSteps from './StrokeOrderSteps';
 import StrokeOrder from './StrokeOrder';
@@ -34,10 +34,11 @@ function norm(s) {
 function searchByPinyin(db, query, limit = 40) {
   return new Promise(resolve => {
     try {
-      const tx    = db.transaction(STORE, 'readonly');
-      const index = tx.objectStore(STORE).index('pinyin');
+      const tx     = db.transaction(STORE, 'readonly');
+      const index  = tx.objectStore(STORE).index('pinyin');
       const prefix = norm(query);
       const range  = IDBKeyRange.bound(prefix, prefix + '￿');
+      // Dedup by hanzi+pinyinTone so polyphonic characters keep all readings
       const seen   = new Set();
       const out    = [];
       const req    = index.openCursor(range);
@@ -45,7 +46,8 @@ function searchByPinyin(db, query, limit = 40) {
         const cursor = e.target.result;
         if (!cursor || out.length >= limit) { resolve(out); return; }
         const entry = cursor.value;
-        if (!seen.has(entry.hanzi)) { seen.add(entry.hanzi); out.push(entry); }
+        const key   = `${entry.hanzi}|${entry.pinyinTone || entry.pinyin}`;
+        if (!seen.has(key)) { seen.add(key); out.push(entry); }
         cursor.continue();
       };
       req.onerror = () => resolve([]);
@@ -76,10 +78,10 @@ function searchByHanzi(db, query, limit = 40) {
         }
         if (out.length > 0) {
           sortEntries(out);
-          // Deduplicate by hanzi+pinyin — removes variant forms with identical reading
+          // Deduplicate by hanzi+pinyinTone — removes variant forms with same reading
           const seen2 = new Set();
-          const deduped = out.filter(e => {
-            const key = `${e.hanzi}|${e.pinyinTone || e.pinyin}`;
+          const deduped = out.filter(entry => {
+            const key = `${entry.hanzi}|${entry.pinyinTone || entry.pinyin}`;
             if (seen2.has(key)) return false;
             seen2.add(key);
             return true;
@@ -104,7 +106,7 @@ function searchByHanzi(db, query, limit = 40) {
   });
 }
 
-// Scan for words that contain `char` (but are not `char` itself)
+// Scan for compound words containing `char`
 function searchCompounds(db, char, limit = 15) {
   return new Promise(resolve => {
     try {
@@ -118,10 +120,7 @@ function searchCompounds(db, char, limit = 15) {
       const req = store.openCursor();
       req.onsuccess = e => {
         const cursor = e.target.result;
-        if (!cursor || out.length >= limit || scanned >= SCAN_MAX) {
-          resolve(out);
-          return;
-        }
+        if (!cursor || out.length >= limit || scanned >= SCAN_MAX) { resolve(out); return; }
         scanned++;
         const entry = cursor.value;
         if (
@@ -131,17 +130,24 @@ function searchCompounds(db, char, limit = 15) {
           !seen.has(entry.hanzi)
         ) {
           seen.add(entry.hanzi);
-          // Skip pure surname/variant entries
           const def = entry.definition || '';
-          if (!/^surname |^variant of|^\(same as/i.test(def)) {
-            out.push(entry);
-          }
+          if (!/^surname |^variant of|^\(same as/i.test(def)) out.push(entry);
         }
         cursor.continue();
       };
       req.onerror = () => resolve([]);
     } catch (_) { resolve([]); }
   });
+}
+
+// Group a flat list of rows by hanzi, preserving encounter order
+function groupByHanzi(rows) {
+  const map = new Map();
+  for (const row of rows) {
+    if (!map.has(row.hanzi)) map.set(row.hanzi, []);
+    map.get(row.hanzi).push(row);
+  }
+  return [...map.values()].map(readings => ({ hanzi: readings[0].hanzi, readings }));
 }
 
 const isHanzi = (s) => /[一-龥]/.test(s);
@@ -185,18 +191,51 @@ function getHSKLevel(hanzi) {
   return null;
 }
 
+// ── Definition cleaning ───────────────────────────────────────────────────────
+// Strip CEDICT artifacts before translation so definitions are clean.
+function cleanDefinition(def) {
+  if (!def) return '';
+  return def
+    // trad|simp[reading] cross-references: 会水|会水[hui4 shui3]
+    .replace(/[一-龥]+\|[一-龥]+\[[a-züÜ0-9 ]+\]/g, '')
+    // char[reading] cross-references: 水[shui3]
+    .replace(/[一-龥]+\[[a-züÜ0-9 ]+\]/g, '')
+    // Standalone [reading] brackets: [hui4 shui3]
+    .replace(/\[[a-züÜ0-9 ]+\]/g, '')
+    // CL: measure word clauses
+    .replace(/\s*\bCL:[^\s;,)]+/g, '')
+    // (variant of ...) / (same as ...) / see ...
+    .replace(/\(variant of [^)]*\)/gi, '')
+    .replace(/\(same as [^)]*\)/gi, '')
+    .replace(/\bsee [一-龥\s,]+/gi, '')
+    // Empty parentheses artifacts
+    .replace(/\(\s*\)/g, '')
+    // Double semicolons and commas
+    .replace(/;\s*;/g, ';')
+    .replace(/,\s*,/g, ',')
+    // Leading / trailing punctuation
+    .replace(/^[\s;,]+/, '').replace(/[\s;,]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // ── Translation helpers ───────────────────────────────────────────────────────
 const ptCache = new Map();
 
 async function translateToPT(enDef) {
   if (!enDef) return null;
-  if (ptCache.has(enDef)) return ptCache.get(enDef);
+  // Clean CEDICT artifacts before sending to translator
+  const cleaned = cleanDefinition(enDef);
+  if (!cleaned) return null;
+  if (ptCache.has(cleaned)) return ptCache.get(cleaned);
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt-BR&dt=t&q=${encodeURIComponent(enDef)}`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt-BR&dt=t&q=${encodeURIComponent(cleaned)}`;
     const res  = await fetch(url);
     const data = await res.json();
     const pt   = data[0].map(x => x[0]).join('');
-    ptCache.set(enDef, pt);
+    ptCache.set(cleaned, pt);
+    // Also map from original key so callers using raw definition hit the cache
+    if (enDef !== cleaned) ptCache.set(enDef, pt);
     return pt;
   } catch (_) { return null; }
 }
@@ -218,6 +257,113 @@ const isPortuguese = (s) => {
   if (/lh|nh/.test(lower)) return true;
   return false;
 };
+
+// ── Search result reading row ─────────────────────────────────────────────────
+// One reading (pinyin + PT definition) within a grouped search result card.
+function SearchReadingRow({ row }) {
+  const [ptDef, setPtDef]         = useState(null);
+  const [ptLoading, setPtLoading] = useState(false);
+
+  useEffect(() => {
+    const enDef = row.definition;
+    if (!enDef) return;
+    // Check cache by both raw and cleaned key
+    const cleaned = cleanDefinition(enDef);
+    if (ptCache.has(cleaned)) { setPtDef(ptCache.get(cleaned)); return; }
+    if (ptCache.has(enDef))   { setPtDef(ptCache.get(enDef));   return; }
+    let cancelled = false;
+    setPtLoading(true);
+    translateToPT(enDef).then(pt => {
+      if (!cancelled) { setPtDef(pt); setPtLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [row.definition]);
+
+  const speak = () => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(row.hanzi);
+    u.lang = 'zh-CN'; u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
+
+  return (
+    <div className="dict-reading-row">
+      <div className="dict-reading-meta">
+        <span className="dict-py">{row.pinyinTone || row.pinyin}</span>
+        {getHSKLevel(row.hanzi) && (
+          <span className="dict-hsk-badge">HSK {getHSKLevel(row.hanzi)}</span>
+        )}
+        <button className="dict-speak-btn" onClick={speak} title="Ouvir pronúncia">▶</button>
+      </div>
+      {(ptDef || ptLoading) && (
+        <div className="dict-def dict-def-pt">
+          <span className="dict-lang">PT</span>
+          {ptLoading
+            ? <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>...</span>
+            : ptDef}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Grouped search result card ────────────────────────────────────────────────
+// Shows one hanzi with all its readings (handles polyphonic characters cleanly).
+function GroupedDictEntry({ group, isExpanded, onToggleExpand, db, onOpenChar }) {
+  const { hanzi, readings } = group;
+  const chars        = [...hanzi];
+  const isPolyphonic = readings.length > 1;
+
+  return (
+    <div className={`dict-entry${isPolyphonic ? ' dict-entry-polyphonic' : ''}`}>
+      <div className="dict-entry-left">
+        <button
+          className="dict-hz dict-hz-btn"
+          onClick={() => onOpenChar(hanzi)}
+          title="Ver detalhes do caractere"
+        >
+          {hanzi}
+        </button>
+      </div>
+      <div className="dict-entry-right">
+        {isPolyphonic ? (
+          <div className="dict-multi-readings">
+            {readings.map((r, i) => (
+              <div key={i} className={`dict-reading-group${i > 0 ? ' dict-reading-group-alt' : ''}`}>
+                <SearchReadingRow row={r} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <SearchReadingRow row={readings[0]} />
+        )}
+
+        <div className="dict-stroke-wrap">
+          <button className="dict-stroke-toggle" onClick={onToggleExpand}>
+            {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
+          </button>
+          {isExpanded && (
+            <div className="dict-stroke-expanded">
+              {chars.length === 1 ? (
+                <div className="dict-stroke-row">
+                  <StrokeOrder char={hanzi} size={120} />
+                  <StrokeOrderSteps char={hanzi} stepSize={68} />
+                </div>
+              ) : (
+                <div className="dict-chars-list">
+                  {chars.map((ch, i) => (
+                    <CharDetail key={i} char={ch} db={db} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── CharPage sub-components ────────────────────────────────────────────────────
 
@@ -293,7 +439,6 @@ function CharPage({ hanzi, db, onBack }) {
     <div className="charpage">
       <button className="charpage-back" onClick={onBack}>← Resultados</button>
 
-      {/* Hero: large char + animation + readings */}
       <div className="charpage-hero">
         <div className="charpage-hero-left">
           <div className="charpage-big-hz">{hanzi}</div>
@@ -309,7 +454,6 @@ function CharPage({ hanzi, db, onBack }) {
         </div>
       </div>
 
-      {/* Stroke order steps */}
       <div className="charpage-section">
         <h3 className="charpage-section-title">Ordem dos traços</h3>
         {isSingle ? (
@@ -326,7 +470,6 @@ function CharPage({ hanzi, db, onBack }) {
         )}
       </div>
 
-      {/* Words containing this character */}
       {isSingle && (
         <div className="charpage-section">
           <h3 className="charpage-section-title">Palavras com {hanzi}</h3>
@@ -345,7 +488,7 @@ function CharPage({ hanzi, db, onBack }) {
   );
 }
 
-// ── Per-character block inside expanded multi-char entry ──────────────────────
+// Per-character block inside expanded multi-char entry
 function CharDetail({ char, db }) {
   const [data, setData] = useState(null);
 
@@ -378,99 +521,17 @@ function CharDetail({ char, db }) {
   );
 }
 
-// ── Single dictionary result entry ────────────────────────────────────────────
-function DictEntry({ row, isExpanded, onToggleExpand, db, onOpenChar }) {
-  const [ptDef, setPtDef]         = useState(null);
-  const [ptLoading, setPtLoading] = useState(false);
-
-  const hz    = row.hanzi;
-  const py    = row.pinyinTone || row.pinyin;
-  const enDef = row.definition || '';
-  const hsk   = getHSKLevel(hz);
-  const chars = hz ? [...hz] : [];
-
-  useEffect(() => {
-    if (!enDef) return;
-    if (ptCache.has(enDef)) { setPtDef(ptCache.get(enDef)); return; }
-    let cancelled = false;
-    setPtLoading(true);
-    translateToPT(enDef).then(pt => {
-      if (!cancelled) { setPtDef(pt); setPtLoading(false); }
-    });
-    return () => { cancelled = true; };
-  }, [enDef]);
-
-  const speak = () => {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(hz);
-    u.lang = 'zh-CN'; u.rate = 0.85;
-    window.speechSynthesis.speak(u);
-  };
-
-  return (
-    <div className="dict-entry">
-      <div className="dict-entry-left">
-        <button
-          className="dict-hz dict-hz-btn"
-          onClick={() => onOpenChar(hz)}
-          title="Ver detalhes do caractere"
-        >
-          {hz}
-        </button>
-        <button className="dict-speak-btn" onClick={speak} title="Ouvir pronúncia">▶</button>
-      </div>
-      <div className="dict-entry-right">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span className="dict-py">{py}</span>
-          {hsk && <span className="dict-hsk-badge">HSK {hsk}</span>}
-        </div>
-        {(ptDef || ptLoading) && (
-          <div className="dict-def dict-def-pt">
-            <span className="dict-lang">PT</span>
-            {ptLoading
-              ? <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>...</span>
-              : ptDef}
-          </div>
-        )}
-        <div className="dict-stroke-wrap">
-          <button className="dict-stroke-toggle" onClick={onToggleExpand}>
-            {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
-          </button>
-          {isExpanded && (
-            <div className="dict-stroke-expanded">
-              {chars.length === 1 ? (
-                <div className="dict-stroke-row">
-                  <StrokeOrder char={hz} size={120} />
-                  <StrokeOrderSteps char={hz} stepSize={68} />
-                </div>
-              ) : (
-                <div className="dict-chars-list">
-                  {chars.map((ch, i) => (
-                    <CharDetail key={i} char={ch} db={db} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function Dictionary() {
   const [query, setQuery]               = useState('');
-  const [results, setResults]           = useState([]);
+  const [results, setResults]           = useState([]);  // raw rows
   const [loading, setLoading]           = useState(false);
   const [dbReady, setDbReady]           = useState(false);
   const [dbError, setDbError]           = useState(null);
   const [showDraw, setShowDraw]         = useState(false);
   const [expandedIdx, setExpandedIdx]   = useState(null);
   const [selectedChar, setSelectedChar] = useState(null);
-  // 'auto' | 'pt' | 'pinyin'
-  const [searchMode, setSearchMode]     = useState('auto');
+  const [searchMode, setSearchMode]     = useState('auto'); // 'auto' | 'pt' | 'pinyin'
 
   const dbRef        = useRef(null);
   const searchGenRef = useRef(0);
@@ -498,8 +559,6 @@ export default function Dictionary() {
         if (searchGenRef.current !== gen) return;
         if (zh && isHanzi(zh)) {
           rows = await searchByHanzi(dbRef.current, zh, 40);
-          // If multi-char translation found nothing, try the first character alone
-          // (e.g. "bom" → "好的" → try "好")
           if (rows.length === 0) {
             const firstChar = [...zh][0];
             if (firstChar && firstChar !== zh) {
@@ -524,8 +583,10 @@ export default function Dictionary() {
     return () => clearTimeout(t);
   }, [query, search]);
 
-  const toggleMode = (mode) =>
-    setSearchMode(cur => cur === mode ? 'auto' : mode);
+  // Group raw rows by hanzi for display
+  const groups = useMemo(() => groupByHanzi(results), [results]);
+
+  const toggleMode = (mode) => setSearchMode(cur => cur === mode ? 'auto' : mode);
 
   return (
     <div className="dict-page">
@@ -552,7 +613,6 @@ export default function Dictionary() {
           >✏️</button>
         </div>
 
-        {/* Explicit search mode selector */}
         <div className="dict-mode-row">
           <span className="dict-mode-label">Buscar por:</span>
           <button
@@ -597,13 +657,13 @@ export default function Dictionary() {
       ) : (
         <div className="dict-results">
           {loading && <div className="dict-loading">A pesquisar...</div>}
-          {!loading && query && results.length === 0 && dbReady && (
+          {!loading && query && groups.length === 0 && dbReady && (
             <div className="dict-empty">Nenhum resultado para "{query}"</div>
           )}
-          {results.map((row, i) => (
-            <DictEntry
-              key={`${row.hanzi}-${i}`}
-              row={row}
+          {groups.map((group, i) => (
+            <GroupedDictEntry
+              key={`${group.hanzi}-${i}`}
+              group={group}
               isExpanded={expandedIdx === i}
               onToggleExpand={() => setExpandedIdx(expandedIdx === i ? null : i)}
               db={dbRef.current}
