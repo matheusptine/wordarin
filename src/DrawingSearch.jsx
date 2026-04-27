@@ -127,9 +127,10 @@ export default function DrawingSearch({ onResult }) {
     if (!matcherRef.current || strokes.current.length === 0) return;
     try {
       const analyzed = new window.HanziLookup.AnalyzedCharacter(strokes.current);
-      const chars = [];
-      matcherRef.current.match(analyzed, 12, (match) => chars.push(match.character));
-      setCandidates(chars);
+      // match() calls the callback ONCE with the full results array
+      matcherRef.current.match(analyzed, 12, (matches) => {
+        setCandidates(matches.map(m => m.character));
+      });
     } catch (err) {
       console.error('Recognition error:', err);
     }
