@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import DrawingSearch from './DrawingSearch';
+import StrokeOrderSteps from './StrokeOrderSteps';
 import StrokeOrder from './StrokeOrder';
 
 // ── IndexedDB ─────────────────────────────────────────────────────────────────
@@ -301,7 +302,7 @@ export default function Dictionary() {
                     <span className="dict-lang">EN</span>{enDef}
                   </div>
                 )}
-                {/* Stroke order toggle — only for single characters */}
+                {/* Stroke order — only for single characters */}
                 {hz.length === 1 && (
                   <div className="dict-stroke-wrap">
                     <button
@@ -310,7 +311,12 @@ export default function Dictionary() {
                     >
                       {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
                     </button>
-                    {isExpanded && <StrokeOrder char={hz} size={140} />}
+                    {isExpanded && (
+                      <div className="dict-stroke-expanded">
+                        <StrokeOrderSteps char={hz} stepSize={68} />
+                        <StrokeOrder char={hz} size={120} />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

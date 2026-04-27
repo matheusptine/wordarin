@@ -2863,3 +2863,47 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .ex-summary-pct { font-size: 18px; color: var(--text-soft); }
 .ex-summary-msg { font-size: 15px; color: var(--text-muted); }
 .ex-summary-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+/* ── Stroke order step-by-step ── */
+.dict-stroke-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.stroke-steps-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stroke-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stroke-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.stroke-step-num {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stroke-steps-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.stroke-steps-loading {
+  font-size: 12px;
+  color: var(--text-muted);
+}

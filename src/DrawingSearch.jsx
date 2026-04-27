@@ -72,7 +72,8 @@ export default function DrawingSearch({ onResult }) {
     setStatus('loading');
     loadHanziLookup()
       .then(() => {
-        matcherRef.current = new window.HanziLookup.Matcher(HL_DATA_KEY, 0.25);
+        // Higher looseness = more tolerant of imprecise/out-of-order strokes
+        matcherRef.current = new window.HanziLookup.Matcher(HL_DATA_KEY, 0.5);
         setStatus('ready');
       })
       .catch(() => setStatus('error'));
@@ -128,7 +129,7 @@ export default function DrawingSearch({ onResult }) {
     try {
       const analyzed = new window.HanziLookup.AnalyzedCharacter(strokes.current);
       // match() calls the callback ONCE with the full results array
-      matcherRef.current.match(analyzed, 12, (matches) => {
+      matcherRef.current.match(analyzed, 20, (matches) => {
         setCandidates(matches.map(m => m.character));
       });
     } catch (err) {
@@ -225,7 +226,11 @@ export default function DrawingSearch({ onResult }) {
 
       {status === 'loading' && <div className="drawing-status">A carregar reconhecimento...</div>}
       {status === 'error'   && <div className="drawing-status drawing-error">Falha ao carregar. Verifique a conexão.</div>}
-      {status === 'ready' && strokeCount === 0 && <div className="drawing-hint">Desenhe um hanzi no quadrado acima</div>}
+      {status === 'ready' && strokeCount === 0 && (
+        <div className="drawing-hint">
+          Desenhe um hanzi acima — siga a ordem correta dos traços para melhor reconhecimento
+        </div>
+      )}
 
       {candidates.length > 0 && (
         <div className="drawing-candidates">
