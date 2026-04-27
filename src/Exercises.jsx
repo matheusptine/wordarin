@@ -675,7 +675,7 @@ export default function Exercises({ showPinyin, showHanzi }) {
             className={`ex-mode-btn ${mode === 'fill' ? 'active' : ''}`}
             onClick={() => setMode('fill')}
           >
-            ✦ Complete os Textos
+            Complete os Textos
           </button>
         </div>
 

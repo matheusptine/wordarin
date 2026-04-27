@@ -2922,3 +2922,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 20px;
   flex-wrap: wrap;
 }
+
+/* ── FillBlanks: hintable blank (in hint mode, not yet revealed) ── */
+.fb-blank-hintable {
+  cursor: pointer;
+  border-color: var(--green-400) !important;
+  background: var(--green-50) !important;
+}
+.fb-blank-hintable:hover {
+  background: var(--green-100) !important;
+}
+
+/* ── FillBlanks: punctuation ruby (align with text baseline) ── */
+.fb-ruby-punct { vertical-align: baseline; }
+.fb-ruby-punct .fb-punct { color: var(--text); font-size: inherit; }

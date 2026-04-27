@@ -202,7 +202,8 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
   const [answers, setAnswers] = useState({});
   const [checked, setChecked] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const [showHints, setShowHints] = useState(false);
+  const [hintMode, setHintMode]     = useState(false);   // dicas: user clicks individual blanks
+  const [hintedBlanks, setHintedBlanks] = useState(new Set()); // which blanks have hint revealed
   const [showTranslation, setShowTranslation] = useState(false);
   const firstInputRef = useRef(null);
 
@@ -248,6 +249,8 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
     setAnswers({});
     setChecked(false);
     setRevealed(false);
+    setHintMode(false);
+    setHintedBlanks(new Set());
   }, [textId, difficulty, attempt]);
 
   const blankCount = blanks.size;
@@ -347,18 +350,11 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
                   <RefreshCw size={15} /> Nova tentativa
                 </button>
                 <button
-                  className={`fb-action ${showHints ? 'active' : ''}`}
-                  onClick={() => setShowHints(h => !h)}
-                  title="Mostra pinyin e significado sob cada lacuna"
+                  className={`fb-action ${hintMode ? 'active' : ''}`}
+                  onClick={() => { setHintMode(h => !h); setHintedBlanks(new Set()); }}
+                  title={hintMode ? 'Sair do modo dicas' : 'Ativar modo dicas: clique numa lacuna para receber uma dica'}
                 >
-                  <Lightbulb size={15} /> Dicas
-                </button>
-                <button
-                  className={`fb-action ${showTranslation ? 'active' : ''}`}
-                  onClick={() => setShowTranslation(t => !t)}
-                  title="Mostrar/ocultar tradução em português"
-                >
-                  <Languages size={15} /> Tradução
+                  <Lightbulb size={15} /> Dicas{hintMode ? ' (clique numa lacuna)' : ''}
                 </button>
                 <button
                   className="fb-action primary"
@@ -388,20 +384,21 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
 
             <section className={`fb-text-body ${showPinyin ? '' : 'fb-no-pinyin'}`}>
               {renderTokens(tokens, blanks, charPinyins, {
-                answers, setAnswer, checked, revealed, showHints, firstInputRef,
+                answers, setAnswer, checked, revealed,
+                hintMode, hintedBlanks, setHintedBlanks,
+                firstInputRef,
               })}
             </section>
 
-            <aside
-              className="fb-aux"
-              style={{ visibility: showTranslation ? 'visible' : 'hidden' }}
-              aria-hidden={!showTranslation}
-            >
-              <div className="fb-aux-block">
-                <div className="fb-aux-label">Tradução (ajuda)</div>
-                <div className="fb-aux-content">{currentText.pt}</div>
-              </div>
-            </aside>
+            {/* Portuguese translation always shown below the text box */}
+            {currentText.pt && (
+              <aside className="fb-aux">
+                <div className="fb-aux-block">
+                  <div className="fb-aux-label">Tradução em português</div>
+                  <div className="fb-aux-content">{currentText.pt}</div>
+                </div>
+              </aside>
+            )}
           </>
         )}
       </main>
@@ -410,11 +407,17 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
 }
 
 function renderTokens(tokens, blanks, charPinyins, ctx) {
-  const { answers, setAnswer, checked, revealed, showHints } = ctx;
+  const { answers, setAnswer, checked, revealed, hintMode, hintedBlanks, setHintedBlanks } = ctx;
   let blankSeen = 0;
   return tokens.map((t, i) => {
     if (t.type === 'newline') return <br key={i} />;
-    if (t.type === 'punct') return <span className="fb-punct" key={i}>{t.text}</span>;
+    // Wrap punctuation in ruby so it aligns with the ruby baseline (no floating)
+    if (t.type === 'punct') return (
+      <ruby className="fb-ruby fb-ruby-punct" key={i}>
+        <span className="fb-punct">{t.text}</span>
+        <rt className="fb-rt"> </rt>
+      </ruby>
+    );
 
     if (t.type === 'char') {
       const py = charPinyins[t.offset] || '';
@@ -429,17 +432,20 @@ function renderTokens(tokens, blanks, charPinyins, ctx) {
     // word
     if (blanks.has(i)) {
       blankSeen++;
+      const myOrder = blankSeen;
       return (
         <BlankInput
           key={i}
           token={t}
           index={i}
-          order={blankSeen}
+          order={myOrder}
           value={answers[i] || ''}
           onChange={v => setAnswer(i, v)}
           checked={checked}
           revealed={revealed}
-          showHint={showHints}
+          hintMode={hintMode}
+          showHint={hintedBlanks.has(i)}
+          onRequestHint={() => hintMode && setHintedBlanks(s => new Set([...s, i]))}
         />
       );
     }
@@ -458,18 +464,15 @@ function renderTokens(tokens, blanks, charPinyins, ctx) {
   });
 }
 
-function BlankInput({ token, index, order, value, onChange, checked, revealed, showHint }) {
+function BlankInput({ token, index, order, value, onChange, checked, revealed,
+                       hintMode, showHint, onRequestHint }) {
   const trimmed = (value || '').trim();
   const isCorrect = trimmed === token.hanzi;
   const status = revealed ? 'revealed' : (checked ? (isCorrect ? 'correct' : 'wrong') : '');
   const display = revealed ? token.hanzi : value;
   const placeholder = '?'.repeat(token.hanzi.length);
-  // input width scales with expected hanzi length
   const width = `${Math.max(2.5, token.hanzi.length * 1.6 + 0.5)}em`;
 
-  // Pinyin acima da lacuna: visível quando a resposta já está exposta
-  // (gabarito, ou acertada após Verificar) ou quando o modo Dicas está ativo.
-  // Nos demais casos mantemos o espaço reservado para evitar "jitter".
   const pinyinVisible = revealed || (checked && isCorrect) || showHint;
   const ptVisible = showHint;
 
@@ -485,16 +488,17 @@ function BlankInput({ token, index, order, value, onChange, checked, revealed, s
       </span>
       <input
         type="text"
-        className={`fb-blank ${status}`}
+        className={`fb-blank ${status}${hintMode && !showHint ? ' fb-blank-hintable' : ''}`}
         value={display}
         onChange={e => onChange(e.target.value)}
+        onClick={onRequestHint}
         disabled={revealed}
         placeholder={placeholder}
         style={{ width }}
         lang="zh-CN"
         autoComplete="off"
         spellCheck={false}
-        title={`${token.pinyin} — ${token.pt}`}
+        title={hintMode && !showHint ? 'Clique para ver a dica' : `${token.pinyin} — ${token.pt}`}
       />
       <span
         className="fb-blank-pt"
