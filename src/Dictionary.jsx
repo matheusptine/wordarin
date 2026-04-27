@@ -153,8 +153,41 @@ async function ptQueryToZH(ptQuery) {
 const isPortuguese = (s) =>
   !isHanzi(s) && /[àáâãäçéêëíîïóôõöúûüÀÁÂÃÄÇÉÊËÍÎÏÓÔÕÖÚÛÜ\s]/.test(s);
 
+// ── Individual character block (used inside multi-char word expansion) ────────
+function CharDetail({ char, db }) {
+  const [data, setData] = useState(null); // { py, ptDef }
+
+  useEffect(() => {
+    if (!db || !char) return;
+    let cancelled = false;
+    searchByHanzi(db, char, 1).then(async rows => {
+      if (cancelled) return;
+      const row   = rows[0];
+      const enDef = row?.definition || '';
+      const py    = row?.pinyinTone || row?.pinyin || '';
+      const pt    = enDef ? await translateToPT(enDef) : null;
+      if (!cancelled) setData({ py, ptDef: pt });
+    });
+    return () => { cancelled = true; };
+  }, [char, db]);
+
+  return (
+    <div className="dict-char-detail">
+      <div className="dict-char-detail-header">
+        <span className="dict-char-detail-hz">{char}</span>
+        {data?.py && <span className="dict-char-detail-py">{data.py}</span>}
+      </div>
+      {data?.ptDef && (
+        <div className="dict-char-detail-def">{data.ptDef}</div>
+      )}
+      <StrokeOrderSteps char={char} stepSize={56} />
+      <StrokeOrder char={char} size={100} />
+    </div>
+  );
+}
+
 // ── Single dictionary entry with async PT translation ────────────────────────
-function DictEntry({ row, isExpanded, onToggleExpand }) {
+function DictEntry({ row, isExpanded, onToggleExpand, db }) {
   const [ptDef, setPtDef]       = useState(null);
   const [ptLoading, setPtLoading] = useState(false);
 
@@ -162,10 +195,10 @@ function DictEntry({ row, isExpanded, onToggleExpand }) {
   const py    = row.pinyinTone || row.pinyin;
   const enDef = row.definition || '';
   const hsk   = getHSKLevel(hz);
+  const chars = hz ? [...hz] : []; // split into individual characters
 
   useEffect(() => {
     if (!enDef) return;
-    // Check cache first (synchronous)
     if (ptCache.has(enDef)) { setPtDef(ptCache.get(enDef)); return; }
     let cancelled = false;
     setPtLoading(true);
@@ -202,22 +235,29 @@ function DictEntry({ row, isExpanded, onToggleExpand }) {
               : ptDef}
           </div>
         )}
-        {hz.length === 1 && (
-          <div className="dict-stroke-wrap">
-            <button className="dict-stroke-toggle" onClick={onToggleExpand}>
-              {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
-            </button>
-            {isExpanded && (
-              <div className="dict-stroke-expanded">
-                {/* Animation widget + step-by-step side by side */}
+        <div className="dict-stroke-wrap">
+          <button className="dict-stroke-toggle" onClick={onToggleExpand}>
+            {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
+          </button>
+          {isExpanded && (
+            <div className="dict-stroke-expanded">
+              {chars.length === 1 ? (
+                // Single character: animation + step-by-step side by side
                 <div className="dict-stroke-row">
                   <StrokeOrder char={hz} size={120} />
                   <StrokeOrderSteps char={hz} stepSize={68} />
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                // Multi-character word: one block per character
+                <div className="dict-chars-grid">
+                  {chars.map((ch, i) => (
+                    <CharDetail key={i} char={ch} db={db} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -323,6 +363,7 @@ export default function Dictionary() {
             row={row}
             isExpanded={expandedIdx === i}
             onToggleExpand={() => setExpandedIdx(expandedIdx === i ? null : i)}
+            db={dbRef.current}
           />
         ))}
       </div>
