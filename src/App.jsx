@@ -7,7 +7,6 @@ import CourseView from './CourseView';
 import LessonNav from './LessonNav';
 import Exercises from './Exercises';
 import Dictionary from './Dictionary';
-import { useIME } from './IMEProvider';
 import { createEditor, Node, Editor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
@@ -44,13 +43,6 @@ export default function App() {
   const activeAudioRef = useRef(null);
   const playSeqIdRef = useRef(0);
 
-  const ime = useIME();
-
-  // Auto-enable IME when entering the editor, disable when leaving
-  useEffect(() => {
-    if (location.pathname === '/editor') ime?.activate?.();
-    else ime?.deactivate?.();
-  }, [location.pathname]);
 
   const [value, setValue] = useState(() => {
     try {
@@ -227,21 +219,6 @@ export default function App() {
             title={showPinyin ? 'Ocultar Pinyin' : 'Mostrar Pinyin'}
           >
             pīn
-          </button>
-          <button
-            className="header-toggle-btn ime-btn"
-            disabled
-            title="IME temporariamente desativado"
-            style={{ opacity: 0.35, cursor: 'not-allowed' }}
-          >
-            IME
-          </button>
-          <button
-            className={`header-toggle-btn ${ime?.ttsEnabled ? 'active' : ''}`}
-            onClick={() => ime?.toggleTts?.()}
-            title={ime?.ttsEnabled ? 'Desativar leitura em voz alta ao confirmar caractere' : 'Ativar leitura em voz alta ao confirmar caractere (fala o caractere em mandarim)'}
-          >
-            Voz
           </button>
         </div>
       </header>
