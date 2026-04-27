@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
 import WordarinEditor from './Editor';
 import Toolbar from './Toolbar';
 import Flashcards from './Flashcards';
@@ -18,12 +19,17 @@ const initialValue = [
   { type: 'paragraph', children: [{ text: '开始在这里输入中文！' }] },
 ];
 
-const VIEWS = ['curso', 'editor', 'exercicios', 'dicionario', 'flashcards'];
-const VIEW_LABELS = { curso: 'Curso', editor: 'Editor', exercicios: 'Exercícios', dicionario: 'Dicionário', flashcards: 'Flashcards' };
+const NAV = [
+  { path: '/curso',      label: 'Curso' },
+  { path: '/editor',     label: 'Editor' },
+  { path: '/exercicios', label: 'Exercícios' },
+  { path: '/dicionario', label: 'Dicionário' },
+  { path: '/flashcards', label: 'Flashcards' },
+];
 
 export default function App() {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-  const [view, setView] = useState('curso');
+  const location = useLocation();
   const [activeLessonId, setActiveLessonId] = useState('intro');
   const [courseData, setCourseData] = useState(null);
 
@@ -42,9 +48,9 @@ export default function App() {
 
   // Auto-enable IME when entering the editor, disable when leaving
   useEffect(() => {
-    if (view === 'editor') ime?.activate?.();
+    if (location.pathname === '/editor') ime?.activate?.();
     else ime?.deactivate?.();
-  }, [view]);
+  }, [location.pathname]);
 
   const [value, setValue] = useState(() => {
     try {
@@ -93,7 +99,7 @@ export default function App() {
   useEffect(() => { translationsRef.current = translations; }, [translations]);
 
   useEffect(() => {
-    if (view !== 'editor') return;
+    if (location.pathname !== '/editor') return;
     const handler = setTimeout(() => {
       value.forEach((node, index) => {
         const text = Node.string(node);
@@ -124,7 +130,7 @@ export default function App() {
       });
     }, 1200);
     return () => clearTimeout(handler);
-  }, [value, editor.selection, view]);
+  }, [value, editor.selection, location.pathname]);
 
   const handlePlay = useCallback(() => {
     if (isPlaying) { stopPlayback(); return; }
@@ -197,14 +203,14 @@ export default function App() {
           <span className="app-logo-pt">Wordarin</span>
         </div>
         <nav className="app-tabs">
-          {VIEWS.map(v => (
-            <button
-              key={v}
-              className={`app-tab ${view === v ? 'active' : ''}`}
-              onClick={() => setView(v)}
+          {NAV.map(({ path, label }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) => `app-tab${isActive ? ' active' : ''}`}
             >
-              {VIEW_LABELS[v]}
-            </button>
+              {label}
+            </NavLink>
           ))}
         </nav>
         <div className="header-toggles">
@@ -240,81 +246,74 @@ export default function App() {
         </div>
       </header>
 
-      {/* Curso view */}
-      {view === 'curso' && (
-        <div className="curso-layout">
-          {courseData ? (
-            <LessonNav
-              lessons={courseData.lessons}
-              activeId={activeLessonId}
-              onSelect={setActiveLessonId}
-            />
-          ) : (
-            <div className="lesson-nav loading">A carregar...</div>
-          )}
-          <main className="curso-main">
-            <CourseView lesson={activeLesson} showPinyin={showPinyin} showHanzi={showHanzi} />
-          </main>
-        </div>
-      )}
+      <Routes>
+        <Route path="/" element={<Navigate to="/curso" replace />} />
 
-      {/* Editor view */}
-      {view === 'editor' && (
-        <div className="app-container">
-          <Toolbar
-            editor={editor}
-            savedSelection={savedSelection}
-            onPrint={() => window.print()}
-            onTxtExport={() => {
-              const text = value.map(n => Node.string(n)).join('\n');
-              const a = Object.assign(document.createElement('a'), {
-                href: URL.createObjectURL(new Blob([text], { type: 'text/plain' })),
-                download: 'Wordarin.txt',
-              });
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-            }}
-            onPlay={handlePlay}
-            isPlaying={isPlaying}
-            speechRate={speechRate}
-            onSpeechRateChange={setSpeechRate}
-            isLooping={isLooping}
-            onToggleLoop={handleToggleLoop}
-            showPinyin={showPinyin}
-            onTogglePinyin={() => setShowPinyin(p => !p)}
-            fontSize={fontSize}
-            onFontSizeChange={setFontSize}
-          />
-          <div className="workspace">
-            <WordarinEditor editor={editor} value={value} onChange={handleChange} showPinyin={showPinyin} fontSize={fontSize} />
-            <div className="translation-gutter">
-              {value.map((node, index) => {
-                const t = translations[index];
-                return (
-                  <div key={index} className={`translation-line ${t?.loading ? 'loading' : ''}`}>
-                    {t?.english || ''}
-                  </div>
-                );
-              })}
+        <Route path="/curso" element={
+          <div className="curso-layout">
+            {courseData ? (
+              <LessonNav lessons={courseData.lessons} activeId={activeLessonId} onSelect={setActiveLessonId} />
+            ) : (
+              <div className="lesson-nav loading">A carregar...</div>
+            )}
+            <main className="curso-main">
+              <CourseView lesson={activeLesson} showPinyin={showPinyin} showHanzi={showHanzi} />
+            </main>
+          </div>
+        } />
+
+        <Route path="/editor" element={
+          <div className="app-container">
+            <Toolbar
+              editor={editor}
+              savedSelection={savedSelection}
+              onPrint={() => window.print()}
+              onTxtExport={() => {
+                const text = value.map(n => Node.string(n)).join('\n');
+                const a = Object.assign(document.createElement('a'), {
+                  href: URL.createObjectURL(new Blob([text], { type: 'text/plain' })),
+                  download: 'Wordarin.txt',
+                });
+                document.body.appendChild(a); a.click(); a.remove();
+              }}
+              onPlay={handlePlay}
+              isPlaying={isPlaying}
+              speechRate={speechRate}
+              onSpeechRateChange={setSpeechRate}
+              isLooping={isLooping}
+              onToggleLoop={handleToggleLoop}
+              showPinyin={showPinyin}
+              onTogglePinyin={() => setShowPinyin(p => !p)}
+              fontSize={fontSize}
+              onFontSizeChange={setFontSize}
+            />
+            <div className="workspace">
+              <WordarinEditor editor={editor} value={value} onChange={handleChange} showPinyin={showPinyin} fontSize={fontSize} />
+              <div className="translation-gutter">
+                {value.map((node, index) => {
+                  const t = translations[index];
+                  return (
+                    <div key={index} className={`translation-line ${t?.loading ? 'loading' : ''}`}>
+                      {t?.english || ''}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        } />
 
-      {/* Exercises view */}
-      {view === 'exercicios' && <Exercises showPinyin={showPinyin} showHanzi={showHanzi} />}
+        <Route path="/exercicios/*" element={<Exercises showPinyin={showPinyin} showHanzi={showHanzi} />} />
+        <Route path="/dicionario/*" element={<Dictionary />} />
+        <Route path="/flashcards" element={
+          <div className="flashcards-fullpage">
+            <Flashcards showPinyin={showPinyin} showHanzi={showHanzi} speechRate={speechRate} fullpage />
+          </div>
+        } />
 
-      {/* Dictionary view */}
-      {view === 'dicionario' && <Dictionary />}
-
-      {/* Flashcards view */}
-      {view === 'flashcards' && (
-        <div className="flashcards-fullpage">
-          <Flashcards showPinyin={showPinyin} showHanzi={showHanzi} speechRate={speechRate} fullpage />
-        </div>
-      )}
-
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/curso" replace />} />
+      </Routes>
     </div>
   );
 }

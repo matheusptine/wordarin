@@ -53,23 +53,37 @@ function searchByPinyin(db, query, limit = 40) {
   });
 }
 
+// Sort results: put common meanings (non-surname, non-variant) first
+function sortEntries(rows) {
+  const isSurname = (def = '') =>
+    /^surname |^\w+ \(surname\)|^variant of|^\(same as|^see /i.test(def);
+  rows.sort((a, b) => (isSurname(a.definition) ? 1 : 0) - (isSurname(b.definition) ? 1 : 0));
+}
+
 function searchByHanzi(db, query, limit = 40) {
   return new Promise(resolve => {
     try {
       const tx    = db.transaction(STORE, 'readonly');
       const store = tx.objectStore(STORE);
       const out   = [];
-      const index = store.index('hanzi');
-      const req   = index.openCursor(IDBKeyRange.only(query));
+
+      // Collect ALL exact-hanzi entries (cursor iterates multiple DB rows)
+      const req = store.index('hanzi').openCursor(IDBKeyRange.only(query));
       req.onsuccess = e => {
         const cursor = e.target.result;
-        if (cursor) { out.push(cursor.value); resolve(out); return; }
-        // Substring scan fallback
+        if (cursor && out.length < limit) {
+          out.push(cursor.value);
+          cursor.continue();
+          return;
+        }
+        if (out.length > 0) { sortEntries(out); resolve(out); return; }
+
+        // Fallback: substring scan for multi-char queries
         const scan = store.openCursor();
         scan.onsuccess = ev => {
           const c = ev.target.result;
-          if (!c) { resolve(out); return; }
-          if (out.length >= limit) { resolve(out); return; }
+          if (!c) { sortEntries(out); resolve(out); return; }
+          if (out.length >= limit) { sortEntries(out); resolve(out); return; }
           if (c.value.hanzi && c.value.hanzi.includes(query)) out.push(c.value);
           c.continue();
         };
@@ -149,20 +163,32 @@ async function ptQueryToZH(ptQuery) {
   } catch (_) { return null; }
 }
 
-// Heuristic: has accented PT chars or spaces → probably Portuguese, not pinyin
-const isPortuguese = (s) =>
-  !isHanzi(s) && /[àáâãäçéêëíîïóôõöúûüÀÁÂÃÄÇÉÊËÍÎÏÓÔÕÖÚÛÜ\s]/.test(s);
+// Detect Portuguese input. Pinyin only uses a-z (no accents) and never ends
+// syllables in 'm' — so "bom", "água", "comer" etc. are reliably detected.
+const isPortuguese = (s) => {
+  if (!s || isHanzi(s)) return false;
+  // Accented chars → definitely Portuguese
+  if (/[àáâãäçéêëíîïóôõöúûüÀÁÂÃÄÇÉÊËÍÎÏÓÔÕÖÚÛÜ]/.test(s)) return true;
+  const lower = s.toLowerCase().trim();
+  // Ends in 'm' (bom, tem, sim, com…) — never valid in standard Mandarin pinyin
+  if (/m(\s|$)/.test(lower)) return true;
+  // Portuguese-only digraphs
+  if (/lh|nh/.test(lower)) return true;
+  return false;
+};
 
-// ── Individual character block (used inside multi-char word expansion) ────────
+// ── Per-character block inside a multi-char word ─────────────────────────────
+// Layout follows the same pattern as single-char: animation on left, steps on right.
+// No coloured box — just a subtle separator line between characters.
 function CharDetail({ char, db }) {
-  const [data, setData] = useState(null); // { py, ptDef }
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     if (!db || !char) return;
     let cancelled = false;
-    searchByHanzi(db, char, 1).then(async rows => {
+    searchByHanzi(db, char, 5).then(async rows => {
       if (cancelled) return;
-      const row   = rows[0];
+      const row   = rows[0]; // sortEntries already put common meaning first
       const enDef = row?.definition || '';
       const py    = row?.pinyinTone || row?.pinyin || '';
       const pt    = enDef ? await translateToPT(enDef) : null;
@@ -172,16 +198,18 @@ function CharDetail({ char, db }) {
   }, [char, db]);
 
   return (
-    <div className="dict-char-detail">
-      <div className="dict-char-detail-header">
-        <span className="dict-char-detail-hz">{char}</span>
-        {data?.py && <span className="dict-char-detail-py">{data.py}</span>}
+    <div className="dict-char-block">
+      {/* Header: character + pinyin + PT definition */}
+      <div className="dict-char-block-info">
+        <span className="dict-char-block-hz">{char}</span>
+        <span className="dict-char-block-py">{data?.py ?? ''}</span>
+        {data?.ptDef && <span className="dict-char-block-def">{data.ptDef}</span>}
       </div>
-      {data?.ptDef && (
-        <div className="dict-char-detail-def">{data.ptDef}</div>
-      )}
-      <StrokeOrderSteps char={char} stepSize={56} />
-      <StrokeOrder char={char} size={100} />
+      {/* Animation left, steps right — same as single-char view */}
+      <div className="dict-stroke-row">
+        <StrokeOrder char={char} size={100} />
+        <StrokeOrderSteps char={char} stepSize={58} />
+      </div>
     </div>
   );
 }
@@ -248,8 +276,8 @@ function DictEntry({ row, isExpanded, onToggleExpand, db }) {
                   <StrokeOrderSteps char={hz} stepSize={68} />
                 </div>
               ) : (
-                // Multi-character word: one block per character
-                <div className="dict-chars-grid">
+                // Multi-character word: stacked blocks, one per character
+                <div className="dict-chars-list">
                   {chars.map((ch, i) => (
                     <CharDetail key={i} char={ch} db={db} />
                   ))}

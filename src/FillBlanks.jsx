@@ -279,6 +279,19 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
   const handleReveal = () => { setRevealed(true); setChecked(false); };
   const handleNewAttempt = () => setAttempt(a => a + 1);
 
+  // Show loading state until both data sources are ready
+  const isLoading = !courseData || texts.length === 0;
+
+  if (isLoading) {
+    return (
+      <div className="fb-page">
+        <div className="fb-loading">
+          <span>A carregar exercícios...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fb-page">
       <div className="fb-sidebar">
@@ -390,14 +403,9 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
               })}
             </section>
 
-            {/* Portuguese translation always shown below the text box */}
+            {/* Portuguese translation — subtle, outside the text box */}
             {currentText.pt && (
-              <aside className="fb-aux">
-                <div className="fb-aux-block">
-                  <div className="fb-aux-label">Tradução em português</div>
-                  <div className="fb-aux-content">{currentText.pt}</div>
-                </div>
-              </aside>
+              <p className="fb-translation-pt">{currentText.pt}</p>
             )}
           </>
         )}
