@@ -760,7 +760,7 @@ export default function Exercises({ showPinyin, showHanzi }) {
           />
         ) : session ? (
           // Session exercise
-          <div key={sessKey}>
+          <div key={sessKey} style={{ width: '100%', maxWidth: 780, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="ex-session-header">
               <span className="ex-session-label">
                 Questão {session.idx + 1} de {session.queue.length}
@@ -777,7 +777,7 @@ export default function Exercises({ showPinyin, showHanzi }) {
           </div>
         ) : (
           // Free practice
-          <div key={`${freeType}-${freeKey}`}>
+          <div key={`${freeType}-${freeKey}`} style={{ width: '100%', maxWidth: 780, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {renderExercise(freeType, null, config.showPinyinHint, filteredItems, handleFreeScore)}
           </div>
         )}

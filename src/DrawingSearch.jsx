@@ -1,10 +1,15 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 
-// HanziLookup (MIT) – gugray/HanziLookupJS – served from public/
+// HanziLookupJS (MIT) – gugray/HanziLookupJS
+// NOTE: HanziLookup.DrawingBoard requires jQuery — we implement our own canvas
+// drawing and call AnalyzedCharacter + Matcher directly.
 const HL_SCRIPT   = '/hanzilookup.min.js';
 const HL_DATA_KEY = 'mmah';
 const HL_DATA_URL = '/mmah.json';
-const CANVAS_PX   = 220;
+
+// Coordinate range HanziLookup uses internally (matches its DrawingBoard canvas size)
+const COORD = 256;
+const CANVAS_PX = 220;
 
 let hlState = 'idle';
 const hlWaiters = [];
@@ -20,6 +25,7 @@ function loadHanziLookup() {
     const script  = document.createElement('script');
     script.src    = HL_SCRIPT;
     script.onload = () => {
+      // init() fetches mmah.json via XHR and populates HanziLookup.data
       window.HanziLookup.init(HL_DATA_KEY, HL_DATA_URL, () => {
         hlState = 'ready';
         hlWaiters.forEach(w => w.resolve());
@@ -28,7 +34,7 @@ function loadHanziLookup() {
     };
     script.onerror = () => {
       hlState = 'error';
-      const e = new Error('Failed to load HanziLookup');
+      const e = new Error('Script load failed');
       hlWaiters.forEach(w => w.reject(e));
       hlWaiters.length = 0;
     };
@@ -36,69 +42,161 @@ function loadHanziLookup() {
   });
 }
 
+// Convert canvas pixel coords to 0–256 range
+function toCoord(canvas, clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return [
+    Math.round(((clientX - rect.left) / rect.width)  * COORD),
+    Math.round(((clientY - rect.top)  / rect.height) * COORD),
+  ];
+}
+
+function getXY(canvas, e) {
+  const src = e.touches ? e.touches[0] : e;
+  return toCoord(canvas, src.clientX, src.clientY);
+}
+
 export default function DrawingSearch({ onResult }) {
   const canvasRef   = useRef(null);
-  const boardRef    = useRef(null);   // HanziLookup.DrawingBoard instance
-  const matcherRef  = useRef(null);  // HanziLookup.Matcher instance
+  const matcherRef  = useRef(null);
+  const strokes     = useRef([]);     // completed: [[[x,y],...], ...]
+  const curStroke   = useRef(null);   // in-progress: [[x,y],...]
+  const isDown      = useRef(false);
+
   const [status, setStatus]           = useState('idle');
   const [candidates, setCandidates]   = useState([]);
   const [strokeCount, setStrokeCount] = useState(0);
 
-  const recognize = useCallback(() => {
-    if (!boardRef.current || !matcherRef.current) return;
-    try {
-      const strokes = boardRef.current.cloneStrokes();
-      if (!strokes || strokes.length === 0) return;
-      setStrokeCount(strokes.length);
-      const analyzed = new window.HanziLookup.AnalyzedCharacter(strokes);
-      const chars = [];
-      matcherRef.current.match(analyzed, 12, (match) => {
-        chars.push(match.character);
-      });
-      setCandidates(chars);
-    } catch (err) {
-      console.error('HanziLookup recognition error:', err);
-    }
-  }, []);
-
-  // Initialize DrawingBoard once library is ready
+  // Load library once
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
     setStatus('loading');
     loadHanziLookup()
       .then(() => {
-        // DrawingBoard manages its own mouse/touch listeners on the canvas
-        boardRef.current  = new window.HanziLookup.DrawingBoard(canvas, {});
         matcherRef.current = new window.HanziLookup.Matcher(HL_DATA_KEY, 0.25);
         setStatus('ready');
-
-        // Hook into stroke-end events to trigger recognition.
-        // DrawingBoard draws internally; we listen on the same element.
-        const onUp = () => setTimeout(recognize, 30);
-        canvas.addEventListener('mouseup',  onUp);
-        canvas.addEventListener('touchend', onUp, { passive: true });
-        return () => {
-          canvas.removeEventListener('mouseup',  onUp);
-          canvas.removeEventListener('touchend', onUp);
-        };
       })
       .catch(() => setStatus('error'));
-  // recognize is stable (useCallback with no deps that change)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const clear = useCallback(() => {
-    if (!boardRef.current) return;
-    // DrawingBoard.redraw() redraws the grid but keeps strokes.
-    // We need to reset the board by re-creating it.
+  // Draw everything on the canvas
+  const redraw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    boardRef.current = new window.HanziLookup.DrawingBoard(canvas, {});
-    setCandidates([]);
-    setStrokeCount(0);
+    const ctx = canvas.getContext('2d');
+    const s   = CANVAS_PX;
+    ctx.clearRect(0, 0, s, s);
+
+    // Grid guide (matches DrawingBoard's visual style)
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth   = 0.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.rect(0, 0, s, s);
+    ctx.moveTo(0, 0); ctx.lineTo(s, s);
+    ctx.moveTo(s, 0); ctx.lineTo(0, s);
+    ctx.moveTo(s / 2, 0); ctx.lineTo(s / 2, s);
+    ctx.moveTo(0, s / 2); ctx.lineTo(s, s / 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const scale = s / COORD;
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth   = 3;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+
+    for (const stroke of strokes.current) {
+      if (stroke.length < 2) continue;
+      ctx.beginPath();
+      ctx.moveTo(stroke[0][0] * scale, stroke[0][1] * scale);
+      for (let i = 1; i < stroke.length; i++) ctx.lineTo(stroke[i][0] * scale, stroke[i][1] * scale);
+      ctx.stroke();
+    }
+
+    if (curStroke.current && curStroke.current.length >= 2) {
+      ctx.strokeStyle = '#15803d';
+      ctx.beginPath();
+      ctx.moveTo(curStroke.current[0][0] * scale, curStroke.current[0][1] * scale);
+      for (let i = 1; i < curStroke.current.length; i++) ctx.lineTo(curStroke.current[i][0] * scale, curStroke.current[i][1] * scale);
+      ctx.stroke();
+    }
   }, []);
+
+  // Recognition: pass strokes to HanziLookup
+  const recognize = useCallback(() => {
+    if (!matcherRef.current || strokes.current.length === 0) return;
+    try {
+      const analyzed = new window.HanziLookup.AnalyzedCharacter(strokes.current);
+      const chars = [];
+      matcherRef.current.match(analyzed, 12, (match) => chars.push(match.character));
+      setCandidates(chars);
+    } catch (err) {
+      console.error('Recognition error:', err);
+    }
+  }, []);
+
+  const onDown = useCallback((e) => {
+    e.preventDefault();
+    if (status !== 'ready') return;
+    isDown.current    = true;
+    curStroke.current = [getXY(canvasRef.current, e)];
+    redraw();
+  }, [status, redraw]);
+
+  const onMove = useCallback((e) => {
+    e.preventDefault();
+    if (!isDown.current) return;
+    curStroke.current.push(getXY(canvasRef.current, e));
+    redraw();
+  }, [redraw]);
+
+  const onUp = useCallback((e) => {
+    e.preventDefault();
+    if (!isDown.current) return;
+    isDown.current = false;
+    if (curStroke.current?.length > 0) {
+      strokes.current.push([...curStroke.current]);
+      setStrokeCount(strokes.current.length);
+    }
+    curStroke.current = null;
+    redraw();
+    recognize();
+  }, [redraw, recognize]);
+
+  // Attach with { passive: false } so we can call preventDefault on touch
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const o = { passive: false };
+    canvas.addEventListener('mousedown',  onDown, o);
+    canvas.addEventListener('mousemove',  onMove, o);
+    canvas.addEventListener('mouseup',    onUp,   o);
+    canvas.addEventListener('mouseleave', onUp,   o);
+    canvas.addEventListener('touchstart', onDown, o);
+    canvas.addEventListener('touchmove',  onMove, o);
+    canvas.addEventListener('touchend',   onUp,   o);
+    return () => {
+      canvas.removeEventListener('mousedown',  onDown);
+      canvas.removeEventListener('mousemove',  onMove);
+      canvas.removeEventListener('mouseup',    onUp);
+      canvas.removeEventListener('mouseleave', onUp);
+      canvas.removeEventListener('touchstart', onDown);
+      canvas.removeEventListener('touchmove',  onMove);
+      canvas.removeEventListener('touchend',   onUp);
+    };
+  }, [onDown, onMove, onUp]);
+
+  // Initial grid
+  useEffect(() => { if (status === 'ready') redraw(); }, [status, redraw]);
+
+  const clear = useCallback(() => {
+    strokes.current   = [];
+    curStroke.current = null;
+    isDown.current    = false;
+    setStrokeCount(0);
+    setCandidates([]);
+    redraw();
+  }, [redraw]);
 
   return (
     <div className="drawing-search">
@@ -119,24 +217,15 @@ export default function DrawingSearch({ onResult }) {
             Limpar
           </button>
           {strokeCount > 0 && (
-            <span className="drawing-strokes">
-              {strokeCount} traço{strokeCount !== 1 ? 's' : ''}
-            </span>
+            <span className="drawing-strokes">{strokeCount} traço{strokeCount !== 1 ? 's' : ''}</span>
           )}
         </div>
       </div>
 
-      {status === 'loading' && (
-        <div className="drawing-status">A carregar reconhecimento...</div>
-      )}
-      {status === 'error' && (
-        <div className="drawing-status drawing-error">
-          Falha ao carregar. Verifique a conexão.
-        </div>
-      )}
-      {status === 'ready' && strokeCount === 0 && (
-        <div className="drawing-hint">Desenhe um hanzi no quadrado acima</div>
-      )}
+      {status === 'loading' && <div className="drawing-status">A carregar reconhecimento...</div>}
+      {status === 'error'   && <div className="drawing-status drawing-error">Falha ao carregar. Verifique a conexão.</div>}
+      {status === 'ready' && strokeCount === 0 && <div className="drawing-hint">Desenhe um hanzi no quadrado acima</div>}
+
       {candidates.length > 0 && (
         <div className="drawing-candidates">
           {candidates.map((c, i) => (
