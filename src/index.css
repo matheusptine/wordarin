@@ -3046,3 +3046,252 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-align: center;
   line-height: 1.5;
 }
+
+/* ── Dictionary: search mode toggle ─────────────────────────────────────────── */
+.dict-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.dict-mode-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.dict-mode-btn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dict-mode-btn:hover {
+  border-color: var(--green-400);
+  color: var(--text);
+}
+.dict-mode-btn.active {
+  background: var(--green-600);
+  border-color: var(--green-600);
+  color: #fff;
+  font-weight: 600;
+}
+
+.dict-mode-reset {
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.dict-mode-reset:hover { color: var(--text); }
+
+/* Clickable hanzi in results */
+.dict-hz-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline dotted var(--green-400);
+  text-underline-offset: 3px;
+}
+.dict-hz-btn:hover { color: var(--green-700); }
+
+/* ── CharPage: Jisho-inspired character detail ───────────────────────────────── */
+.charpage {
+  padding: 20px 28px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.charpage-back {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.charpage-back:hover {
+  background: var(--green-50);
+  color: var(--green-700);
+  border-color: var(--green-300);
+}
+
+/* Hero: big char + animation left, readings right */
+.charpage-hero {
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.charpage-hero-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.charpage-big-hz {
+  font-size: 72px;
+  line-height: 1;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.charpage-hsk {
+  margin-top: 2px;
+}
+
+.charpage-hero-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 200px;
+}
+
+/* Individual reading row */
+.charpage-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.charpage-reading:last-child { border-bottom: none; }
+
+.charpage-reading-main .charpage-reading-py {
+  font-size: 22px;
+  color: var(--green-700);
+  font-weight: 600;
+}
+.charpage-reading-main .charpage-reading-def {
+  font-size: 16px;
+  color: var(--text);
+}
+
+.charpage-reading-py {
+  font-size: 17px;
+  color: var(--green-600);
+  font-style: italic;
+}
+.charpage-reading-def {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.charpage-loading-inline {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Section (stroke order, compounds) */
+.charpage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.charpage-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+/* Multi-char stroke section */
+.charpage-chars-strokes {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.charpage-char-stroke-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.charpage-char-label {
+  font-size: 24px;
+  color: var(--text-soft);
+}
+
+.charpage-loading-block {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* Compounds list */
+.charpage-compounds {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.charpage-compound-row {
+  display: grid;
+  grid-template-columns: 90px 140px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--surface-1);
+}
+.charpage-compound-row:last-child { border-bottom: none; }
+
+.charpage-compound-hz {
+  font-size: 20px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.charpage-compound-py {
+  font-size: 13px;
+  color: var(--green-600);
+  font-style: italic;
+}
+
+.charpage-compound-def {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.charpage-compound-speak {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.charpage-compound-speak:hover {
+  background: var(--green-50);
+  color: var(--green-700);
+}

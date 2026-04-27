@@ -53,7 +53,6 @@ function searchByPinyin(db, query, limit = 40) {
   });
 }
 
-// Sort results: put common meanings (non-surname, non-variant) first
 function sortEntries(rows) {
   const isSurname = (def = '') =>
     /^surname |^\w+ \(surname\)|^variant of|^\(same as|^see /i.test(def);
@@ -67,7 +66,6 @@ function searchByHanzi(db, query, limit = 40) {
       const store = tx.objectStore(STORE);
       const out   = [];
 
-      // Collect ALL exact-hanzi entries (cursor iterates multiple DB rows)
       const req = store.index('hanzi').openCursor(IDBKeyRange.only(query));
       req.onsuccess = e => {
         const cursor = e.target.result;
@@ -78,7 +76,7 @@ function searchByHanzi(db, query, limit = 40) {
         }
         if (out.length > 0) { sortEntries(out); resolve(out); return; }
 
-        // Fallback: substring scan for multi-char queries
+        // Fallback: substring scan
         const scan = store.openCursor();
         scan.onsuccess = ev => {
           const c = ev.target.result;
@@ -94,10 +92,49 @@ function searchByHanzi(db, query, limit = 40) {
   });
 }
 
+// Scan for words that contain `char` (but are not `char` itself)
+function searchCompounds(db, char, limit = 15) {
+  return new Promise(resolve => {
+    try {
+      const tx    = db.transaction(STORE, 'readonly');
+      const store = tx.objectStore(STORE);
+      const out   = [];
+      const seen  = new Set();
+      let scanned = 0;
+      const SCAN_MAX = 60000;
+
+      const req = store.openCursor();
+      req.onsuccess = e => {
+        const cursor = e.target.result;
+        if (!cursor || out.length >= limit || scanned >= SCAN_MAX) {
+          resolve(out);
+          return;
+        }
+        scanned++;
+        const entry = cursor.value;
+        if (
+          entry.hanzi &&
+          entry.hanzi.length > 1 &&
+          entry.hanzi.includes(char) &&
+          !seen.has(entry.hanzi)
+        ) {
+          seen.add(entry.hanzi);
+          // Skip pure surname/variant entries
+          const def = entry.definition || '';
+          if (!/^surname |^variant of|^\(same as/i.test(def)) {
+            out.push(entry);
+          }
+        }
+        cursor.continue();
+      };
+      req.onerror = () => resolve([]);
+    } catch (_) { resolve([]); }
+  });
+}
+
 const isHanzi = (s) => /[一-龥]/.test(s);
 
-// ── HSK level table (HSK 1-6 standard word list — hanzi → level) ─────────────
-// Covers HSK 1 (150 words) and HSK 2 (150 words). Words not listed = HSK 3+.
+// ── HSK level table ───────────────────────────────────────────────────────────
 const HSK1 = new Set([
   '爱','八','爸爸','杯子','北京','本','不','不客气','菜','茶','吃','出租车',
   '打电话','大','的','地图','点','电脑','电视','电影','东西','都','读','对不起',
@@ -133,7 +170,6 @@ function getHSKLevel(hanzi) {
   if (!hanzi) return null;
   if (HSK1.has(hanzi)) return 1;
   if (HSK2.has(hanzi)) return 2;
-  // Rough HSK 3-6 heuristic by character count / complexity
   return null;
 }
 
@@ -144,7 +180,7 @@ async function translateToPT(enDef) {
   if (!enDef) return null;
   if (ptCache.has(enDef)) return ptCache.get(enDef);
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=${encodeURIComponent(enDef)}`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt-BR&dt=t&q=${encodeURIComponent(enDef)}`;
     const res  = await fetch(url);
     const data = await res.json();
     const pt   = data[0].map(x => x[0]).join('');
@@ -153,7 +189,6 @@ async function translateToPT(enDef) {
   } catch (_) { return null; }
 }
 
-// Translate PT query → ZH so we can search the database
 async function ptQueryToZH(ptQuery) {
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=zh-CN&dt=t&q=${encodeURIComponent(ptQuery)}`;
@@ -163,23 +198,142 @@ async function ptQueryToZH(ptQuery) {
   } catch (_) { return null; }
 }
 
-// Detect Portuguese input. Pinyin only uses a-z (no accents) and never ends
-// syllables in 'm' — so "bom", "água", "comer" etc. are reliably detected.
 const isPortuguese = (s) => {
   if (!s || isHanzi(s)) return false;
-  // Accented chars → definitely Portuguese
   if (/[àáâãäçéêëíîïóôõöúûüÀÁÂÃÄÇÉÊËÍÎÏÓÔÕÖÚÛÜ]/.test(s)) return true;
   const lower = s.toLowerCase().trim();
-  // Ends in 'm' (bom, tem, sim, com…) — never valid in standard Mandarin pinyin
   if (/m(\s|$)/.test(lower)) return true;
-  // Portuguese-only digraphs
   if (/lh|nh/.test(lower)) return true;
   return false;
 };
 
-// ── Per-character block inside a multi-char word ─────────────────────────────
-// Layout follows the same pattern as single-char: animation on left, steps on right.
-// No coloured box — just a subtle separator line between characters.
+// ── CharPage sub-components ────────────────────────────────────────────────────
+
+function ReadingRow({ row, isMain }) {
+  const [pt, setPt] = useState(null);
+
+  useEffect(() => {
+    if (!row.definition) return;
+    translateToPT(row.definition).then(setPt);
+  }, [row.definition]);
+
+  return (
+    <div className={`charpage-reading${isMain ? ' charpage-reading-main' : ''}`}>
+      <span className="charpage-reading-py">{row.pinyinTone || row.pinyin}</span>
+      <span className="charpage-reading-def">
+        {pt ?? <span className="charpage-loading-inline">...</span>}
+      </span>
+    </div>
+  );
+}
+
+function CompoundRow({ row }) {
+  const [pt, setPt] = useState(null);
+
+  useEffect(() => {
+    translateToPT(row.definition).then(setPt);
+  }, [row.definition]);
+
+  const speak = () => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(row.hanzi);
+    u.lang = 'zh-CN'; u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
+
+  return (
+    <div className="charpage-compound-row">
+      <span className="charpage-compound-hz">{row.hanzi}</span>
+      <span className="charpage-compound-py">{row.pinyinTone || row.pinyin}</span>
+      <span className="charpage-compound-def">{pt ?? '...'}</span>
+      <button className="charpage-compound-speak" onClick={speak} title="Ouvir">▶</button>
+    </div>
+  );
+}
+
+// Jisho-inspired character detail page
+function CharPage({ hanzi, db, onBack }) {
+  const [readings, setReadings]               = useState([]);
+  const [compounds, setCompounds]             = useState([]);
+  const [compoundLoading, setCompoundLoading] = useState(true);
+
+  const chars    = hanzi ? [...hanzi] : [];
+  const isSingle = chars.length === 1;
+  const hsk      = getHSKLevel(hanzi);
+
+  useEffect(() => {
+    if (!db || !hanzi) return;
+    searchByHanzi(db, hanzi, 20).then(setReadings);
+  }, [hanzi, db]);
+
+  useEffect(() => {
+    if (!db) { setCompoundLoading(false); return; }
+    if (!isSingle) { setCompoundLoading(false); return; }
+    setCompoundLoading(true);
+    searchCompounds(db, hanzi, 15).then(rows => {
+      setCompounds(rows);
+      setCompoundLoading(false);
+    });
+  }, [hanzi, db, isSingle]);
+
+  return (
+    <div className="charpage">
+      <button className="charpage-back" onClick={onBack}>← Resultados</button>
+
+      {/* Hero: large char + animation + readings */}
+      <div className="charpage-hero">
+        <div className="charpage-hero-left">
+          <div className="charpage-big-hz">{hanzi}</div>
+          <StrokeOrder char={chars[0]} size={150} autoAnimate />
+          {hsk && <span className="dict-hsk-badge charpage-hsk">HSK {hsk}</span>}
+        </div>
+        <div className="charpage-hero-right">
+          {readings.length === 0 ? (
+            <div className="charpage-loading-inline">A carregar leituras...</div>
+          ) : (
+            readings.map((r, i) => <ReadingRow key={i} row={r} isMain={i === 0} />)
+          )}
+        </div>
+      </div>
+
+      {/* Stroke order steps */}
+      <div className="charpage-section">
+        <h3 className="charpage-section-title">Ordem dos traços</h3>
+        {isSingle ? (
+          <StrokeOrderSteps char={hanzi} stepSize={72} />
+        ) : (
+          <div className="charpage-chars-strokes">
+            {chars.map((ch, i) => (
+              <div key={i} className="charpage-char-stroke-block">
+                <span className="charpage-char-label">{ch}</span>
+                <StrokeOrderSteps char={ch} stepSize={64} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Words containing this character */}
+      {isSingle && (
+        <div className="charpage-section">
+          <h3 className="charpage-section-title">Palavras com {hanzi}</h3>
+          {compoundLoading ? (
+            <div className="charpage-loading-block">A pesquisar palavras...</div>
+          ) : compounds.length === 0 ? (
+            <div className="charpage-loading-block">Nenhuma palavra encontrada.</div>
+          ) : (
+            <div className="charpage-compounds">
+              {compounds.map((c, i) => <CompoundRow key={i} row={c} />)}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Per-character block inside expanded multi-char entry ──────────────────────
 function CharDetail({ char, db }) {
   const [data, setData] = useState(null);
 
@@ -188,7 +342,7 @@ function CharDetail({ char, db }) {
     let cancelled = false;
     searchByHanzi(db, char, 5).then(async rows => {
       if (cancelled) return;
-      const row   = rows[0]; // sortEntries already put common meaning first
+      const row   = rows[0];
       const enDef = row?.definition || '';
       const py    = row?.pinyinTone || row?.pinyin || '';
       const pt    = enDef ? await translateToPT(enDef) : null;
@@ -199,13 +353,11 @@ function CharDetail({ char, db }) {
 
   return (
     <div className="dict-char-block">
-      {/* Header: character + pinyin + PT definition */}
       <div className="dict-char-block-info">
         <span className="dict-char-block-hz">{char}</span>
         <span className="dict-char-block-py">{data?.py ?? ''}</span>
         {data?.ptDef && <span className="dict-char-block-def">{data.ptDef}</span>}
       </div>
-      {/* Animation left, steps right — same as single-char view */}
       <div className="dict-stroke-row">
         <StrokeOrder char={char} size={100} />
         <StrokeOrderSteps char={char} stepSize={58} />
@@ -214,16 +366,16 @@ function CharDetail({ char, db }) {
   );
 }
 
-// ── Single dictionary entry with async PT translation ────────────────────────
-function DictEntry({ row, isExpanded, onToggleExpand, db }) {
-  const [ptDef, setPtDef]       = useState(null);
+// ── Single dictionary result entry ────────────────────────────────────────────
+function DictEntry({ row, isExpanded, onToggleExpand, db, onOpenChar }) {
+  const [ptDef, setPtDef]         = useState(null);
   const [ptLoading, setPtLoading] = useState(false);
 
   const hz    = row.hanzi;
   const py    = row.pinyinTone || row.pinyin;
   const enDef = row.definition || '';
   const hsk   = getHSKLevel(hz);
-  const chars = hz ? [...hz] : []; // split into individual characters
+  const chars = hz ? [...hz] : [];
 
   useEffect(() => {
     if (!enDef) return;
@@ -247,7 +399,13 @@ function DictEntry({ row, isExpanded, onToggleExpand, db }) {
   return (
     <div className="dict-entry">
       <div className="dict-entry-left">
-        <span className="dict-hz">{hz}</span>
+        <button
+          className="dict-hz dict-hz-btn"
+          onClick={() => onOpenChar(hz)}
+          title="Ver detalhes do caractere"
+        >
+          {hz}
+        </button>
         <button className="dict-speak-btn" onClick={speak} title="Ouvir pronúncia">▶</button>
       </div>
       <div className="dict-entry-right">
@@ -270,13 +428,11 @@ function DictEntry({ row, isExpanded, onToggleExpand, db }) {
           {isExpanded && (
             <div className="dict-stroke-expanded">
               {chars.length === 1 ? (
-                // Single character: animation + step-by-step side by side
                 <div className="dict-stroke-row">
                   <StrokeOrder char={hz} size={120} />
                   <StrokeOrderSteps char={hz} stepSize={68} />
                 </div>
               ) : (
-                // Multi-character word: stacked blocks, one per character
                 <div className="dict-chars-list">
                   {chars.map((ch, i) => (
                     <CharDetail key={i} char={ch} db={db} />
@@ -293,13 +449,17 @@ function DictEntry({ row, isExpanded, onToggleExpand, db }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function Dictionary() {
-  const [query, setQuery]       = useState('');
-  const [results, setResults]   = useState([]);
-  const [loading, setLoading]   = useState(false);
-  const [dbReady, setDbReady]   = useState(false);
-  const [dbError, setDbError]   = useState(null);
-  const [showDraw, setShowDraw] = useState(false);
-  const [expandedIdx, setExpandedIdx] = useState(null);
+  const [query, setQuery]               = useState('');
+  const [results, setResults]           = useState([]);
+  const [loading, setLoading]           = useState(false);
+  const [dbReady, setDbReady]           = useState(false);
+  const [dbError, setDbError]           = useState(null);
+  const [showDraw, setShowDraw]         = useState(false);
+  const [expandedIdx, setExpandedIdx]   = useState(null);
+  const [selectedChar, setSelectedChar] = useState(null);
+  // 'auto' | 'pt' | 'pinyin'
+  const [searchMode, setSearchMode]     = useState('auto');
+
   const dbRef        = useRef(null);
   const searchGenRef = useRef(0);
 
@@ -311,6 +471,7 @@ export default function Dictionary() {
 
   const search = useCallback(async (q) => {
     q = q.trim();
+    setSelectedChar(null);
     if (!q) { setResults([]); setExpandedIdx(null); return; }
     const gen = ++searchGenRef.current;
     setLoading(true);
@@ -320,8 +481,7 @@ export default function Dictionary() {
     if (dbRef.current) {
       if (isHanzi(q)) {
         rows = await searchByHanzi(dbRef.current, q, 40);
-      } else if (isPortuguese(q)) {
-        // Translate PT → ZH then search
+      } else if (searchMode === 'pt' || (searchMode === 'auto' && isPortuguese(q))) {
         const zh = await ptQueryToZH(q);
         if (searchGenRef.current !== gen) return;
         if (zh && isHanzi(zh)) {
@@ -337,18 +497,22 @@ export default function Dictionary() {
     if (searchGenRef.current !== gen) return;
     setResults(rows);
     setLoading(false);
-  }, []);
+  }, [searchMode]);
 
   useEffect(() => {
     const t = setTimeout(() => search(query), 300);
     return () => clearTimeout(t);
   }, [query, search]);
 
+  const toggleMode = (mode) =>
+    setSearchMode(cur => cur === mode ? 'auto' : mode);
+
   return (
     <div className="dict-page">
       <div className="dict-header">
         <h2 className="dict-title">Dicionário</h2>
-        <p className="dict-subtitle">Pesquise por pinyin (ex: nihao), hanzi (ex: 你好) ou português (ex: bom, água)</p>
+        <p className="dict-subtitle">Pesquise por pinyin, hanzi ou português</p>
+
         <div className="dict-search-row">
           <input
             className="dict-search"
@@ -367,9 +531,33 @@ export default function Dictionary() {
             title="Busca por desenho"
           >✏️</button>
         </div>
+
+        {/* Explicit search mode selector */}
+        <div className="dict-mode-row">
+          <span className="dict-mode-label">Buscar por:</span>
+          <button
+            className={`dict-mode-btn ${searchMode === 'pt' ? 'active' : ''}`}
+            onClick={() => toggleMode('pt')}
+          >
+            🇧🇷 Português
+          </button>
+          <button
+            className={`dict-mode-btn ${searchMode === 'pinyin' ? 'active' : ''}`}
+            onClick={() => toggleMode('pinyin')}
+          >
+            拼 Pinyin / Hanzi
+          </button>
+          {searchMode !== 'auto' && (
+            <button className="dict-mode-reset" onClick={() => setSearchMode('auto')}>
+              Auto
+            </button>
+          )}
+        </div>
+
         {showDraw && (
           <DrawingSearch onResult={(char) => { setQuery(char); setShowDraw(false); }} />
         )}
+
         {!dbReady && !dbError && (
           <div className="dict-status">Conectando ao dicionário...</div>
         )}
@@ -380,21 +568,30 @@ export default function Dictionary() {
         )}
       </div>
 
-      <div className="dict-results">
-        {loading && <div className="dict-loading">A pesquisar...</div>}
-        {!loading && query && results.length === 0 && dbReady && (
-          <div className="dict-empty">Nenhum resultado para "{query}"</div>
-        )}
-        {results.map((row, i) => (
-          <DictEntry
-            key={`${row.hanzi}-${i}`}
-            row={row}
-            isExpanded={expandedIdx === i}
-            onToggleExpand={() => setExpandedIdx(expandedIdx === i ? null : i)}
-            db={dbRef.current}
-          />
-        ))}
-      </div>
+      {selectedChar ? (
+        <CharPage
+          hanzi={selectedChar}
+          db={dbRef.current}
+          onBack={() => setSelectedChar(null)}
+        />
+      ) : (
+        <div className="dict-results">
+          {loading && <div className="dict-loading">A pesquisar...</div>}
+          {!loading && query && results.length === 0 && dbReady && (
+            <div className="dict-empty">Nenhum resultado para "{query}"</div>
+          )}
+          {results.map((row, i) => (
+            <DictEntry
+              key={`${row.hanzi}-${i}`}
+              row={row}
+              isExpanded={expandedIdx === i}
+              onToggleExpand={() => setExpandedIdx(expandedIdx === i ? null : i)}
+              db={dbRef.current}
+              onOpenChar={(hz) => setSelectedChar(hz)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
