@@ -1,15 +1,19 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 // HanziLookupJS (MIT) – gugray/HanziLookupJS
-// NOTE: HanziLookup.DrawingBoard requires jQuery — we implement our own canvas
-// drawing and call AnalyzedCharacter + Matcher directly.
+// We implement our own canvas (DrawingBoard requires jQuery).
 const HL_SCRIPT   = '/hanzilookup.min.js';
 const HL_DATA_KEY = 'mmah';
 const HL_DATA_URL = '/mmah.json';
 
-// Coordinate range HanziLookup uses internally (matches its DrawingBoard canvas size)
-const COORD = 256;
-const CANVAS_PX = 220;
+// HanziLookup's DrawingBoard uses a 256×256 canvas — match that coordinate space.
+const COORD     = 256;
+const CANVAS_PX = 280; // larger canvas = more room to draw precisely
+
+// Minimum distance (in COORD units) between consecutive recorded points.
+// DrawingBoard throttles at 50 ms; at 60 fps that's ~3 events ≈ ~4 coord units moved.
+// Filtering dense points gives the pivot-detection algorithm cleaner input.
+const MIN_DIST = 4;
 
 let hlState = 'idle';
 const hlWaiters = [];
@@ -25,7 +29,6 @@ function loadHanziLookup() {
     const script  = document.createElement('script');
     script.src    = HL_SCRIPT;
     script.onload = () => {
-      // init() fetches mmah.json via XHR and populates HanziLookup.data
       window.HanziLookup.init(HL_DATA_KEY, HL_DATA_URL, () => {
         hlState = 'ready';
         hlWaiters.forEach(w => w.resolve());
@@ -42,44 +45,43 @@ function loadHanziLookup() {
   });
 }
 
-// Convert canvas pixel coords to 0–256 range
-function toCoord(canvas, clientX, clientY) {
+function getXY(canvas, e) {
   const rect = canvas.getBoundingClientRect();
+  const src  = e.touches ? e.touches[0] : e;
   return [
-    Math.round(((clientX - rect.left) / rect.width)  * COORD),
-    Math.round(((clientY - rect.top)  / rect.height) * COORD),
+    Math.round(((src.clientX - rect.left) / rect.width)  * COORD),
+    Math.round(((src.clientY - rect.top)  / rect.height) * COORD),
   ];
 }
 
-function getXY(canvas, e) {
-  const src = e.touches ? e.touches[0] : e;
-  return toCoord(canvas, src.clientX, src.clientY);
+function dist2(a, b) {
+  return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;
 }
 
 export default function DrawingSearch({ onResult }) {
-  const canvasRef   = useRef(null);
-  const matcherRef  = useRef(null);
-  const strokes     = useRef([]);     // completed: [[[x,y],...], ...]
-  const curStroke   = useRef(null);   // in-progress: [[x,y],...]
-  const isDown      = useRef(false);
+  const canvasRef  = useRef(null);
+  const matcherRef = useRef(null);
+  const strokes    = useRef([]);    // [[x,y],...] per completed stroke
+  const curStroke  = useRef(null);  // current stroke being drawn
+  const isDown     = useRef(false);
 
   const [status, setStatus]           = useState('idle');
   const [candidates, setCandidates]   = useState([]);
   const [strokeCount, setStrokeCount] = useState(0);
 
-  // Load library once
   useEffect(() => {
     setStatus('loading');
     loadHanziLookup()
       .then(() => {
-        // Higher looseness = more tolerant of imprecise/out-of-order strokes
+        // looseness 0.5 — more tolerant than the default 0.15
         matcherRef.current = new window.HanziLookup.Matcher(HL_DATA_KEY, 0.5);
         setStatus('ready');
       })
       .catch(() => setStatus('error'));
   }, []);
 
-  // Draw everything on the canvas
+  // ── Canvas drawing ─────────────────────────────────────────────────────────
+
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -87,25 +89,26 @@ export default function DrawingSearch({ onResult }) {
     const s   = CANVAS_PX;
     ctx.clearRect(0, 0, s, s);
 
-    // Grid guide (matches DrawingBoard's visual style)
+    // Grid guide matching DrawingBoard visual (diagonal + cross lines)
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth   = 0.5;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
     ctx.rect(0, 0, s, s);
-    ctx.moveTo(0, 0); ctx.lineTo(s, s);
-    ctx.moveTo(s, 0); ctx.lineTo(0, s);
-    ctx.moveTo(s / 2, 0); ctx.lineTo(s / 2, s);
-    ctx.moveTo(0, s / 2); ctx.lineTo(s, s / 2);
+    ctx.moveTo(0, 0);   ctx.lineTo(s, s);
+    ctx.moveTo(s, 0);   ctx.lineTo(0, s);
+    ctx.moveTo(s/2, 0); ctx.lineTo(s/2, s);
+    ctx.moveTo(0, s/2); ctx.lineTo(s, s/2);
     ctx.stroke();
     ctx.setLineDash([]);
 
     const scale = s / COORD;
+    ctx.lineCap  = 'round';
+    ctx.lineJoin = 'round';
+
+    // Completed strokes
     ctx.strokeStyle = '#1a1a1a';
     ctx.lineWidth   = 3;
-    ctx.lineCap     = 'round';
-    ctx.lineJoin    = 'round';
-
     for (const stroke of strokes.current) {
       if (stroke.length < 2) continue;
       ctx.beginPath();
@@ -114,8 +117,10 @@ export default function DrawingSearch({ onResult }) {
       ctx.stroke();
     }
 
-    if (curStroke.current && curStroke.current.length >= 2) {
+    // Current stroke in green
+    if (curStroke.current?.length >= 2) {
       ctx.strokeStyle = '#15803d';
+      ctx.lineWidth   = 3;
       ctx.beginPath();
       ctx.moveTo(curStroke.current[0][0] * scale, curStroke.current[0][1] * scale);
       for (let i = 1; i < curStroke.current.length; i++) ctx.lineTo(curStroke.current[i][0] * scale, curStroke.current[i][1] * scale);
@@ -123,12 +128,12 @@ export default function DrawingSearch({ onResult }) {
     }
   }, []);
 
-  // Recognition: pass strokes to HanziLookup
+  // ── Recognition ───────────────────────────────────────────────────────────
+
   const recognize = useCallback(() => {
     if (!matcherRef.current || strokes.current.length === 0) return;
     try {
       const analyzed = new window.HanziLookup.AnalyzedCharacter(strokes.current);
-      // match() calls the callback ONCE with the full results array
       matcherRef.current.match(analyzed, 20, (matches) => {
         setCandidates(matches.map(m => m.character));
       });
@@ -136,6 +141,8 @@ export default function DrawingSearch({ onResult }) {
       console.error('Recognition error:', err);
     }
   }, []);
+
+  // ── Event handlers ────────────────────────────────────────────────────────
 
   const onDown = useCallback((e) => {
     e.preventDefault();
@@ -147,8 +154,13 @@ export default function DrawingSearch({ onResult }) {
 
   const onMove = useCallback((e) => {
     e.preventDefault();
-    if (!isDown.current) return;
-    curStroke.current.push(getXY(canvasRef.current, e));
+    if (!isDown.current || !curStroke.current) return;
+    const pt   = getXY(canvasRef.current, e);
+    const last = curStroke.current[curStroke.current.length - 1];
+    // Only record point if mouse moved at least MIN_DIST coords — mirrors
+    // DrawingBoard's 50 ms throttle and avoids over-dense point clouds.
+    if (dist2(pt, last) < MIN_DIST * MIN_DIST) return;
+    curStroke.current.push(pt);
     redraw();
   }, [redraw]);
 
@@ -165,7 +177,6 @@ export default function DrawingSearch({ onResult }) {
     recognize();
   }, [redraw, recognize]);
 
-  // Attach with { passive: false } so we can call preventDefault on touch
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -188,7 +199,6 @@ export default function DrawingSearch({ onResult }) {
     };
   }, [onDown, onMove, onUp]);
 
-  // Initial grid
   useEffect(() => { if (status === 'ready') redraw(); }, [status, redraw]);
 
   const clear = useCallback(() => {
@@ -199,6 +209,8 @@ export default function DrawingSearch({ onResult }) {
     setCandidates([]);
     redraw();
   }, [redraw]);
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="drawing-search">
@@ -221,14 +233,14 @@ export default function DrawingSearch({ onResult }) {
           {strokeCount > 0 && (
             <span className="drawing-strokes">{strokeCount} traço{strokeCount !== 1 ? 's' : ''}</span>
           )}
+          {status === 'loading' && <span className="drawing-status">A carregar...</span>}
+          {status === 'error'   && <span className="drawing-status drawing-error">Erro ao carregar</span>}
         </div>
       </div>
 
-      {status === 'loading' && <div className="drawing-status">A carregar reconhecimento...</div>}
-      {status === 'error'   && <div className="drawing-status drawing-error">Falha ao carregar. Verifique a conexão.</div>}
       {status === 'ready' && strokeCount === 0 && (
         <div className="drawing-hint">
-          Desenhe um hanzi acima — siga a ordem correta dos traços para melhor reconhecimento
+          Desenhe um hanzi — use o espaço todo e siga a ordem correcta dos traços
         </div>
       )}
 
