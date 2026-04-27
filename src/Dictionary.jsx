@@ -123,8 +123,7 @@ function getHSKLevel(hanzi) {
   return null;
 }
 
-// ── English → Portuguese via Google Translate (same endpoint as App.jsx) ─────
-// Cache translations in memory to avoid duplicate requests.
+// ── Translation helpers ───────────────────────────────────────────────────────
 const ptCache = new Map();
 
 async function translateToPT(enDef) {
@@ -137,10 +136,22 @@ async function translateToPT(enDef) {
     const pt   = data[0].map(x => x[0]).join('');
     ptCache.set(enDef, pt);
     return pt;
-  } catch (_) {
-    return null;
-  }
+  } catch (_) { return null; }
 }
+
+// Translate PT query → ZH so we can search the database
+async function ptQueryToZH(ptQuery) {
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=zh-CN&dt=t&q=${encodeURIComponent(ptQuery)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    return data[0].map(x => x[0]).join('').trim();
+  } catch (_) { return null; }
+}
+
+// Heuristic: has accented PT chars or spaces → probably Portuguese, not pinyin
+const isPortuguese = (s) =>
+  !isHanzi(s) && /[àáâãäçéêëíîïóôõöúûüÀÁÂÃÄÇÉÊËÍÎÏÓÔÕÖÚÛÜ\s]/.test(s);
 
 // ── Single dictionary entry with async PT translation ────────────────────────
 function DictEntry({ row, isExpanded, onToggleExpand }) {
@@ -186,12 +197,9 @@ function DictEntry({ row, isExpanded, onToggleExpand }) {
         {(ptDef || ptLoading) && (
           <div className="dict-def dict-def-pt">
             <span className="dict-lang">PT</span>
-            {ptLoading ? <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>...</span> : ptDef}
-          </div>
-        )}
-        {enDef && (
-          <div className="dict-def dict-def-en">
-            <span className="dict-lang">EN</span>{enDef}
+            {ptLoading
+              ? <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>...</span>
+              : ptDef}
           </div>
         )}
         {hz.length === 1 && (
@@ -201,8 +209,11 @@ function DictEntry({ row, isExpanded, onToggleExpand }) {
             </button>
             {isExpanded && (
               <div className="dict-stroke-expanded">
-                <StrokeOrderSteps char={hz} stepSize={68} />
-                <StrokeOrder char={hz} size={120} />
+                {/* Animation widget + step-by-step side by side */}
+                <div className="dict-stroke-row">
+                  <StrokeOrder char={hz} size={120} />
+                  <StrokeOrderSteps char={hz} stepSize={68} />
+                </div>
               </div>
             )}
           </div>
@@ -241,6 +252,15 @@ export default function Dictionary() {
     if (dbRef.current) {
       if (isHanzi(q)) {
         rows = await searchByHanzi(dbRef.current, q, 40);
+      } else if (isPortuguese(q)) {
+        // Translate PT → ZH then search
+        const zh = await ptQueryToZH(q);
+        if (searchGenRef.current !== gen) return;
+        if (zh && isHanzi(zh)) {
+          rows = await searchByHanzi(dbRef.current, zh, 40);
+        } else if (zh) {
+          rows = await searchByPinyin(dbRef.current, zh, 40);
+        }
       } else {
         rows = await searchByPinyin(dbRef.current, q, 40);
       }
@@ -260,12 +280,12 @@ export default function Dictionary() {
     <div className="dict-page">
       <div className="dict-header">
         <h2 className="dict-title">Dicionário</h2>
-        <p className="dict-subtitle">Pesquise por pinyin (ex: nihao) ou por hanzi (ex: 你好)</p>
+        <p className="dict-subtitle">Pesquise por pinyin (ex: nihao), hanzi (ex: 你好) ou português (ex: bom, água)</p>
         <div className="dict-search-row">
           <input
             className="dict-search"
             type="text"
-            placeholder="Pinyin ou hanzi..."
+            placeholder="Pinyin, hanzi ou português..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoFocus

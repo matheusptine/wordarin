@@ -2912,3 +2912,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .drawing-undo-btn { padding:6px 12px; border-radius:7px; border:1px solid var(--border); background:var(--surface); font-size:13px; color:var(--text-soft); cursor:pointer; }
 .drawing-undo-btn:hover:not(:disabled) { background:var(--green-50); border-color:var(--green-400); color:var(--green-800); }
 .drawing-undo-btn:disabled { opacity:.4; cursor:default; }
+
+/* ── Dictionary stroke row (animation + steps side by side) ── */
+.dict-stroke-expanded { margin-top: 10px; }
+.dict-stroke-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
