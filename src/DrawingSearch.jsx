@@ -201,6 +201,15 @@ export default function DrawingSearch({ onResult }) {
 
   useEffect(() => { if (status === 'ready') redraw(); }, [status, redraw]);
 
+  const undo = useCallback(() => {
+    if (strokes.current.length === 0) return;
+    strokes.current.pop();
+    setStrokeCount(strokes.current.length);
+    redraw();
+    if (strokes.current.length > 0) recognize();
+    else setCandidates([]);
+  }, [redraw, recognize]);
+
   const clear = useCallback(() => {
     strokes.current   = [];
     curStroke.current = null;
@@ -223,6 +232,14 @@ export default function DrawingSearch({ onResult }) {
           style={{ cursor: status === 'ready' ? 'crosshair' : 'default' }}
         />
         <div className="drawing-controls">
+          <button
+            className="drawing-undo-btn"
+            onClick={undo}
+            disabled={status !== 'ready' || strokeCount === 0}
+            title="Desfazer último traço"
+          >
+            ↩ Desfazer
+          </button>
           <button
             className="drawing-clear-btn"
             onClick={clear}

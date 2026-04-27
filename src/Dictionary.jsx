@@ -123,60 +123,96 @@ function getHSKLevel(hanzi) {
   return null;
 }
 
-// ── English → Portuguese definition translation ───────────────────────────────
-// Maps common English terms to Portuguese. Used to produce a PT gloss from
-// the CC-CEDICT English definition without a translation API.
-const EN_PT_TERMS = {
-  'hello': 'olá', 'good morning': 'bom dia', 'good evening': 'boa noite',
-  'goodbye': 'tchau', 'thank you': 'obrigado/a', 'please': 'por favor',
-  'sorry': 'desculpe', 'excuse me': 'com licença',
-  'yes': 'sim', 'no': 'não', 'ok': 'ok',
-  'I': 'eu', 'you': 'você', 'he': 'ele', 'she': 'ela', 'we': 'nós', 'they': 'eles',
-  'person': 'pessoa', 'people': 'pessoas', 'man': 'homem', 'woman': 'mulher',
-  'child': 'criança', 'friend': 'amigo', 'teacher': 'professor', 'student': 'aluno',
-  'family': 'família', 'father': 'pai', 'mother': 'mãe', 'son': 'filho',
-  'daughter': 'filha', 'brother': 'irmão', 'sister': 'irmã',
-  'good': 'bom', 'bad': 'mau', 'big': 'grande', 'small': 'pequeno',
-  'old': 'velho', 'new': 'novo', 'hot': 'quente', 'cold': 'frio',
-  'happy': 'feliz', 'sad': 'triste', 'beautiful': 'bonito', 'pretty': 'bonito',
-  'fast': 'rápido', 'slow': 'devagar', 'near': 'perto', 'far': 'longe',
-  'love': 'amor', 'like': 'gostar', 'want': 'querer', 'need': 'precisar',
-  'eat': 'comer', 'drink': 'beber', 'see': 'ver', 'hear': 'ouvir',
-  'speak': 'falar', 'say': 'dizer', 'go': 'ir', 'come': 'vir',
-  'work': 'trabalhar', 'study': 'estudar', 'sleep': 'dormir', 'run': 'correr',
-  'read': 'ler', 'write': 'escrever', 'buy': 'comprar', 'sell': 'vender',
-  'give': 'dar', 'take': 'pegar', 'bring': 'trazer', 'use': 'usar',
-  'water': 'água', 'food': 'comida', 'rice': 'arroz', 'bread': 'pão',
-  'tea': 'chá', 'coffee': 'café', 'meat': 'carne', 'fish': 'peixe',
-  'fruit': 'fruta', 'vegetable': 'vegetal', 'chicken': 'frango',
-  'house': 'casa', 'room': 'quarto', 'school': 'escola', 'hospital': 'hospital',
-  'hotel': 'hotel', 'restaurant': 'restaurante', 'shop': 'loja', 'store': 'loja',
-  'China': 'China', 'Chinese': 'chinês', 'language': 'idioma', 'character': 'caractere',
-  'book': 'livro', 'time': 'tempo', 'day': 'dia', 'year': 'ano', 'month': 'mês',
-  'today': 'hoje', 'tomorrow': 'amanhã', 'yesterday': 'ontem',
-  'morning': 'manhã', 'afternoon': 'tarde', 'evening': 'noite',
-  'money': 'dinheiro', 'price': 'preço', 'number': 'número', 'name': 'nome',
-  'question': 'pergunta', 'answer': 'resposta', 'problem': 'problema',
-  'way': 'caminho', 'place': 'lugar', 'country': 'país', 'city': 'cidade',
-  'north': 'norte', 'south': 'sul', 'east': 'leste', 'west': 'oeste',
-  'not': 'não', 'also': 'também', 'very': 'muito', 'more': 'mais',
-  'all': 'todo', 'some': 'alguns', 'this': 'este', 'that': 'aquele',
-  'classif': 'classificador', 'surname': 'sobrenome', 'particle': 'partícula',
-  'dialect': 'dialeto', 'abbr': 'abrev.', 'variant': 'variante',
-};
+// ── English → Portuguese via Google Translate (same endpoint as App.jsx) ─────
+// Cache translations in memory to avoid duplicate requests.
+const ptCache = new Map();
 
-function translateToPT(enDef) {
+async function translateToPT(enDef) {
   if (!enDef) return null;
-  const lower = enDef.toLowerCase();
-  // Try multi-word matches first (longer phrases take priority)
-  const sorted = Object.entries(EN_PT_TERMS).sort((a, b) => b[0].length - a[0].length);
-  for (const [en, pt] of sorted) {
-    if (lower.includes(en.toLowerCase())) return pt;
+  if (ptCache.has(enDef)) return ptCache.get(enDef);
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=${encodeURIComponent(enDef)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const pt   = data[0].map(x => x[0]).join('');
+    ptCache.set(enDef, pt);
+    return pt;
+  } catch (_) {
+    return null;
   }
-  return null;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// ── Single dictionary entry with async PT translation ────────────────────────
+function DictEntry({ row, isExpanded, onToggleExpand }) {
+  const [ptDef, setPtDef]       = useState(null);
+  const [ptLoading, setPtLoading] = useState(false);
+
+  const hz    = row.hanzi;
+  const py    = row.pinyinTone || row.pinyin;
+  const enDef = row.definition || '';
+  const hsk   = getHSKLevel(hz);
+
+  useEffect(() => {
+    if (!enDef) return;
+    // Check cache first (synchronous)
+    if (ptCache.has(enDef)) { setPtDef(ptCache.get(enDef)); return; }
+    let cancelled = false;
+    setPtLoading(true);
+    translateToPT(enDef).then(pt => {
+      if (!cancelled) { setPtDef(pt); setPtLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [enDef]);
+
+  const speak = () => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(hz);
+    u.lang = 'zh-CN'; u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
+
+  return (
+    <div className="dict-entry">
+      <div className="dict-entry-left">
+        <span className="dict-hz">{hz}</span>
+        <button className="dict-speak-btn" onClick={speak} title="Ouvir pronúncia">▶</button>
+      </div>
+      <div className="dict-entry-right">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span className="dict-py">{py}</span>
+          {hsk && <span className="dict-hsk-badge">HSK {hsk}</span>}
+        </div>
+        {(ptDef || ptLoading) && (
+          <div className="dict-def dict-def-pt">
+            <span className="dict-lang">PT</span>
+            {ptLoading ? <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>...</span> : ptDef}
+          </div>
+        )}
+        {enDef && (
+          <div className="dict-def dict-def-en">
+            <span className="dict-lang">EN</span>{enDef}
+          </div>
+        )}
+        {hz.length === 1 && (
+          <div className="dict-stroke-wrap">
+            <button className="dict-stroke-toggle" onClick={onToggleExpand}>
+              {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
+            </button>
+            {isExpanded && (
+              <div className="dict-stroke-expanded">
+                <StrokeOrderSteps char={hz} stepSize={68} />
+                <StrokeOrder char={hz} size={120} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
 export default function Dictionary() {
   const [query, setQuery]       = useState('');
   const [results, setResults]   = useState([]);
@@ -184,7 +220,7 @@ export default function Dictionary() {
   const [dbReady, setDbReady]   = useState(false);
   const [dbError, setDbError]   = useState(null);
   const [showDraw, setShowDraw] = useState(false);
-  const [expandedIdx, setExpandedIdx] = useState(null); // which entry shows stroke order
+  const [expandedIdx, setExpandedIdx] = useState(null);
   const dbRef        = useRef(null);
   const searchGenRef = useRef(0);
 
@@ -219,14 +255,6 @@ export default function Dictionary() {
     const t = setTimeout(() => search(query), 300);
     return () => clearTimeout(t);
   }, [query, search]);
-
-  const speak = (text) => {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN'; u.rate = 0.85;
-    window.speechSynthesis.speak(u);
-  };
 
   return (
     <div className="dict-page">
@@ -269,60 +297,14 @@ export default function Dictionary() {
         {!loading && query && results.length === 0 && dbReady && (
           <div className="dict-empty">Nenhum resultado para "{query}"</div>
         )}
-        {results.map((row, i) => {
-          const hz    = row.hanzi;
-          const py    = row.pinyinTone || row.pinyin;
-          const enDef = row.definition || '';
-          const ptDef = translateToPT(enDef);
-          const hsk   = getHSKLevel(hz);
-          const isExpanded = expandedIdx === i;
-
-          return (
-            <div key={i} className="dict-entry">
-              <div className="dict-entry-left">
-                <span className="dict-hz">{hz}</span>
-                <button
-                  className="dict-speak-btn"
-                  onClick={() => speak(hz)}
-                  title="Ouvir pronúncia"
-                >▶</button>
-              </div>
-              <div className="dict-entry-right">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span className="dict-py">{py}</span>
-                  {hsk && <span className="dict-hsk-badge">HSK {hsk}</span>}
-                </div>
-                {ptDef && (
-                  <div className="dict-def dict-def-pt">
-                    <span className="dict-lang">PT</span>{ptDef}
-                  </div>
-                )}
-                {enDef && (
-                  <div className="dict-def dict-def-en">
-                    <span className="dict-lang">EN</span>{enDef}
-                  </div>
-                )}
-                {/* Stroke order — only for single characters */}
-                {hz.length === 1 && (
-                  <div className="dict-stroke-wrap">
-                    <button
-                      className="dict-stroke-toggle"
-                      onClick={() => setExpandedIdx(isExpanded ? null : i)}
-                    >
-                      {isExpanded ? '▲ Ocultar traços' : '▼ Ordem dos traços'}
-                    </button>
-                    {isExpanded && (
-                      <div className="dict-stroke-expanded">
-                        <StrokeOrderSteps char={hz} stepSize={68} />
-                        <StrokeOrder char={hz} size={120} />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {results.map((row, i) => (
+          <DictEntry
+            key={`${row.hanzi}-${i}`}
+            row={row}
+            isExpanded={expandedIdx === i}
+            onToggleExpand={() => setExpandedIdx(expandedIdx === i ? null : i)}
+          />
+        ))}
       </div>
     </div>
   );

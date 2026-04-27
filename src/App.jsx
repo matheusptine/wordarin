@@ -223,9 +223,10 @@ export default function App() {
             pīn
           </button>
           <button
-            className={`header-toggle-btn ime-btn ${ime?.active ? 'active' : ''}`}
-            onClick={() => ime?.toggle()}
-            title={ime?.active ? 'Desativar IME Chinês' : 'Ativar IME Chinês (teclado pinyin)'}
+            className="header-toggle-btn ime-btn"
+            disabled
+            title="IME temporariamente desativado"
+            style={{ opacity: 0.35, cursor: 'not-allowed' }}
           >
             IME
           </button>
