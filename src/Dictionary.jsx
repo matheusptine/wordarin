@@ -74,7 +74,19 @@ function searchByHanzi(db, query, limit = 40) {
           cursor.continue();
           return;
         }
-        if (out.length > 0) { sortEntries(out); resolve(out); return; }
+        if (out.length > 0) {
+          sortEntries(out);
+          // Deduplicate by hanzi+pinyin — removes variant forms with identical reading
+          const seen2 = new Set();
+          const deduped = out.filter(e => {
+            const key = `${e.hanzi}|${e.pinyinTone || e.pinyin}`;
+            if (seen2.has(key)) return false;
+            seen2.add(key);
+            return true;
+          });
+          resolve(deduped);
+          return;
+        }
 
         // Fallback: substring scan
         const scan = store.openCursor();
@@ -486,6 +498,14 @@ export default function Dictionary() {
         if (searchGenRef.current !== gen) return;
         if (zh && isHanzi(zh)) {
           rows = await searchByHanzi(dbRef.current, zh, 40);
+          // If multi-char translation found nothing, try the first character alone
+          // (e.g. "bom" → "好的" → try "好")
+          if (rows.length === 0) {
+            const firstChar = [...zh][0];
+            if (firstChar && firstChar !== zh) {
+              rows = await searchByHanzi(dbRef.current, firstChar, 40);
+            }
+          }
         } else if (zh) {
           rows = await searchByPinyin(dbRef.current, zh, 40);
         }
