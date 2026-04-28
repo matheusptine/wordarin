@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Eye, EyeOff, Shuffle, Play, Square } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Shuffle, Play, Square, Lock } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
+import { useAuth } from './auth/useAuth';
+import { useDailyLimit } from './hooks/useDailyLimit';
+
+const FREE_CARDS_PER_DAY = 10;
 
 const HANZI_KEY = 'Chinês (汉字)';
 const PINYIN_KEY = 'Pinyin';
 const PT_KEY = 'Português';
 
-const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0 }) => {
+const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0, onLoginRequest }) => {
+  const { user } = useAuth();
+  const limit = useDailyLimit('flashcards', { limit: FREE_CARDS_PER_DAY, isLoggedIn: !!user });
   const [decks, setDecks] = useState([]);
   const [deckIdx, setDeckIdx] = useState(0);
   const [cardIdx, setCardIdx] = useState(0);
@@ -94,11 +100,13 @@ const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0 }) =
     stopPlayback();
     setRevealed(false);
     setCardIdx(i => (i - 1 + cards.length) % cards.length);
+    limit.increment();
   };
   const handleNext = () => {
     stopPlayback();
     setRevealed(false);
     setCardIdx(i => (i + 1) % cards.length);
+    limit.increment();
   };
 
   const hanziWithRuby = useMemo(() => {
@@ -136,6 +144,21 @@ const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0 }) =
     );
   }
 
+  if (limit.exceeded) {
+    return (
+      <div className={panelClass}>
+        <div className="fc-limit-gate">
+          <Lock size={36} className="fc-limit-icon" />
+          <h3>Limite diário atingido</h3>
+          <p>Estudaste <strong>{FREE_CARDS_PER_DAY} cards</strong> hoje — óptimo trabalho!</p>
+          <p className="fc-limit-sub">Cria uma conta gratuita para continuar sem limites.</p>
+          <button className="fc-limit-cta" onClick={onLoginRequest}>Criar conta grátis</button>
+          <p className="fc-limit-or">O limite reinicia à meia-noite.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={panelClass}>
       <div className="flashcards-header">
@@ -151,6 +174,11 @@ const Flashcards = ({ showPinyin = true, showHanzi = true, speechRate = 1.0 }) =
         <span className="flashcards-counter">
           {cards.length ? `${cardIdx + 1}/${cards.length}` : '0/0'}
         </span>
+        {!user && (
+          <span className="fc-daily-badge" title={`${limit.remaining} cards restantes hoje`}>
+            {limit.remaining}/{FREE_CARDS_PER_DAY}
+          </span>
+        )}
       </div>
 
       <div className="flashcards-card">

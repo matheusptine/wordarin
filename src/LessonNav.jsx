@@ -19,7 +19,10 @@ function scrollToSection(key) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-export default function LessonNav({ lessons, activeId, onSelect }) {
+// Lessons with index > FREE_LESSON_COUNT require a login.
+const FREE_LESSON_COUNT = 2;
+
+export default function LessonNav({ lessons, activeId, onSelect, user, onLoginRequest }) {
   const isExtraActive = activeId === 'extra';
   return (
     <nav className="lesson-nav">
@@ -28,17 +31,21 @@ export default function LessonNav({ lessons, activeId, onSelect }) {
         <span className="lesson-nav-subtitle">Chinês Contemporâneo · Básico 1</span>
       </div>
       <ul className="lesson-nav-list">
-        {lessons.map((lesson) => {
+        {lessons.map((lesson, idx) => {
           const isActive = activeId === lesson.id;
           const subs = isActive ? getSubsections(lesson) : [];
+          const locked = !user && idx >= FREE_LESSON_COUNT;
           return (
             <li key={lesson.id}>
               <button
-                className={`lesson-nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => onSelect(lesson.id)}
+                className={`lesson-nav-item ${isActive ? 'active' : ''} ${locked ? 'locked' : ''}`}
+                onClick={() => locked ? onLoginRequest?.() : onSelect(lesson.id)}
                 style={{ '--lesson-color': lesson.color || '#52b788' }}
+                title={locked ? 'Cria uma conta gratuita para aceder' : undefined}
               >
-                <span className="lesson-nav-number">{lesson.number}</span>
+                <span className="lesson-nav-number">
+                  {locked ? '🔒' : lesson.number}
+                </span>
                 <div className="lesson-nav-text">
                   <span className="lesson-nav-title">{lesson.title}</span>
                   {lesson.chineseTitle && (

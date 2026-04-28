@@ -1,11 +1,17 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import WordarinEditor from './Editor';
 import Toolbar from './Toolbar';
 import Flashcards from './Flashcards';
 import FillBlanks from './FillBlanks';
 import CourseView from './CourseView';
 import LessonNav from './LessonNav';
+import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
 import { useIME } from './IMEProvider';
+import { AuthProvider } from './auth/AuthContext';
+import { useAuth } from './auth/useAuth';
+import LoginModal from './auth/LoginModal';
 import { createEditor, Node, Editor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
@@ -17,12 +23,21 @@ const initialValue = [
   { type: 'paragraph', children: [{ text: '开始在这里输入中文！' }] },
 ];
 
-const VIEWS = ['curso', 'editor', 'flashcards'];
-const VIEW_LABELS = { curso: 'Curso', editor: 'Editor', flashcards: 'Flashcards' };
+const VIEWS = ['home', 'curso', 'editor', 'flashcards'];
+const VIEW_LABELS = { home: 'Início', curso: 'Curso', editor: 'Editor', flashcards: 'Flashcards' };
 
-export default function App() {
+function AppShell() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginTab, setLoginTab] = useState('login');
+
+  function openLogin(tab = 'login') {
+    setLoginTab(tab);
+    setShowLoginModal(true);
+  }
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-  const [view, setView] = useState('curso');
+  const [view, setView] = useState('home');
   const [activeLessonId, setActiveLessonId] = useState('intro');
   const [courseData, setCourseData] = useState(null);
 
@@ -191,7 +206,7 @@ export default function App() {
     <div className="app-root">
       {/* Top nav bar */}
       <header className="app-header">
-        <div className="app-logo">
+        <div className="app-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} title="Página inicial">
           <span className="app-logo-zh">当代中文</span>
           <span className="app-logo-pt">Wordarin</span>
         </div>
@@ -228,8 +243,38 @@ export default function App() {
           >
             IME
           </button>
+
+          <div className="header-auth">
+            {user ? (
+              <div className="header-user">
+                <span className="header-user-name">{user.name}</span>
+                <button className="header-user-logout" onClick={logout} title="Sair">Sair</button>
+              </div>
+            ) : (
+              <>
+                <button className="header-login-btn" onClick={() => openLogin('login')}>Entrar</button>
+                <button className="header-signup-btn" onClick={() => openLogin('signup')}>Criar conta</button>
+              </>
+            )}
+          </div>
         </div>
       </header>
+
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} initialTab={loginTab} />
+      )}
+
+      {/* Home view */}
+      {view === 'home' && (
+        <div className="app-home-wrap">
+          <HomePage
+            onNavigate={(targetView, lessonId) => {
+              if (lessonId) setActiveLessonId(lessonId);
+              setView(targetView);
+            }}
+          />
+        </div>
+      )}
 
       {/* Curso view */}
       {view === 'curso' && (
@@ -239,15 +284,23 @@ export default function App() {
               lessons={courseData.lessons}
               activeId={activeLessonId}
               onSelect={setActiveLessonId}
+              user={user}
+              onLoginRequest={() => openLogin('signup')}
             />
           ) : (
             <div className="lesson-nav loading">A carregar...</div>
           )}
           <main className="curso-main">
             {activeLessonId === 'extra' ? (
-              <FillBlanks showPinyin={showPinyin} showHanzi={showHanzi} />
+              <FillBlanks showPinyin={showPinyin} showHanzi={showHanzi} onLoginRequest={() => openLogin('signup')} />
             ) : (
-              <CourseView lesson={activeLesson} showPinyin={showPinyin} showHanzi={showHanzi} />
+              <CourseView
+                lesson={activeLesson}
+                showPinyin={showPinyin}
+                showHanzi={showHanzi}
+                user={user}
+                onLoginRequest={() => openLogin('signup')}
+              />
             )}
           </main>
         </div>
@@ -300,10 +353,28 @@ export default function App() {
       {/* Flashcards view */}
       {view === 'flashcards' && (
         <div className="flashcards-fullpage">
-          <Flashcards showPinyin={showPinyin} showHanzi={showHanzi} speechRate={speechRate} fullpage />
+          <Flashcards
+            showPinyin={showPinyin}
+            showHanzi={showHanzi}
+            speechRate={speechRate}
+            fullpage
+            onLoginRequest={() => openLogin('signup')}
+          />
         </div>
       )}
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<AppShell />} />
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+    </AuthProvider>
   );
 }

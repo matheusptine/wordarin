@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { RefreshCw, Lightbulb, Check, Eye, EyeOff, X, Languages } from 'lucide-react';
+import { RefreshCw, Lightbulb, Check, Eye, EyeOff, X, Languages, Lock } from 'lucide-react';
 import { pinyin as pinyinPro } from 'pinyin-pro';
+import { useAuth } from './auth/useAuth';
+import { useDailyLimit } from './hooks/useDailyLimit';
+
+const FREE_TEXTS_PER_DAY = 1;
 
 // ─────────────────────────────────────────────────────────────────
 // Proper nouns — never blankable, even when they match vocabulary.
@@ -193,7 +197,9 @@ function pickBlanks(tokens, ratio) {
 // ─────────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────────
-export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
+export default function FillBlanks({ showPinyin = true, showHanzi = true, onLoginRequest }) {
+  const { user } = useAuth();
+  const limit = useDailyLimit('fill-blanks', { limit: FREE_TEXTS_PER_DAY, isLoggedIn: !!user });
   const [courseData, setCourseData] = useState(null);
   const [texts, setTexts] = useState([]);
   const [textId, setTextId] = useState(null);
@@ -276,6 +282,12 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
   const handleReveal = () => { setRevealed(true); setChecked(false); };
   const handleNewAttempt = () => setAttempt(a => a + 1);
 
+  const handleSelectText = (id) => {
+    if (id !== textId && limit.exceeded) { onLoginRequest?.(); return; }
+    if (id !== textId) limit.increment();
+    setTextId(id);
+  };
+
   return (
     <div className="fb-page">
       <div className="fb-sidebar">
@@ -283,6 +295,16 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
           <span className="fb-sidebar-title">完形填空</span>
           <span className="fb-sidebar-subtitle">Complete os Textos</span>
         </div>
+
+        {!user && (
+          <div className={`fb-limit-badge ${limit.exceeded ? 'exceeded' : ''}`}>
+            <Lock size={12} />
+            {limit.exceeded
+              ? <span>Limite atingido · <button onClick={onLoginRequest}>criar conta</button></span>
+              : <span>{limit.remaining}/{FREE_TEXTS_PER_DAY} texto{FREE_TEXTS_PER_DAY !== 1 ? 's' : ''} restante{FREE_TEXTS_PER_DAY !== 1 ? 's' : ''} hoje</span>
+            }
+          </div>
+        )}
 
         <div className="fb-sidebar-section">
           <div className="fb-sidebar-label">Dificuldade do exercício</div>
@@ -311,7 +333,7 @@ export default function FillBlanks({ showPinyin = true, showHanzi = true }) {
                     <li key={t.id}>
                       <button
                         className={`fb-text-item ${textId === t.id ? 'active' : ''}`}
-                        onClick={() => setTextId(t.id)}
+                        onClick={() => handleSelectText(t.id)}
                       >
                         <span className={`fb-text-diff fb-diff-${t.difficulty}`}>{diffLabel(t.difficulty)}</span>
                         <span className="fb-text-id">{t.id}</span>
